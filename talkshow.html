@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div></body></html><style type="text/css">body {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div></body></html><style type="text/css">body {
   background-color: #f4f4ed;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   line-height: 160%;
@@ -54,36 +54,14 @@ td:hover,
   -webkit-box-shadow: inset 0px 0px 20px 30px #ff0;
 }
 </style><script>$(function() {
-    var navigationDataSource = NavigationDataSource();
+    var grid = Grid(4, 3);
 
-    var myDataSource = {
-        colorForCell: function(x, y) {
-            if (x === 0) {
-                return navigationDataSource.colorForCell(x, y);
-            }
-            var index = x+y*4 % 6 + 1;
-            var color = index.toString(2);
-            color = "000".substr(0,3-color.length) + color;
-            color = color.replace(/1/g, "255,").replace(/0/g, "112,");
-            color += ".3"; // alpha
-            color = "rgba(" + color + ")";
-            return color;
-        },
-        labelForCell: function(x, y) {
-            if (x === 0) {
-                return navigationDataSource.labelForCell(x, y);
-            }
-            return "label " + x + " / " + y;
-        },
-        enterCell: function(x, y) {
-            if (x === 0) {
-                return navigationDataSource.enterCell(x, y);
-            }
-            console.log("entering cell",x,y);
-        }
-    };
+    var navigationController = NavigationController(grid);
+    var navigationDataSource = NavigationDataSource(navigationController);
 
-    var grid = Grid(4, 3, myDataSource);
+    var myDataSource = GenericDataSource(navigationDataSource, navigationController);
+
+    navigationController.push(myDataSource);
     console.log(grid.positions());
 
     var scanner = Scanner(grid.positions(), myDataSource);
