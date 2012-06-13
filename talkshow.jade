@@ -82,6 +82,9 @@ script
             },
             labelForCell: function(x,y) {
                 return "label " + x + " / " + y;
+            },
+            enterCell: function(x, y) {
+                console.log("entering cell",x,y);
             }
         };
     
@@ -89,6 +92,28 @@ script
         console.log(grid.positions());
         
         var scanner = Scanner(grid.positions());
+
+        function enter() {
+            var focusPos = focusPosition();
+            if (focusPos !== null) {
+                myDataSource.enterCell(focusPos.left, focusPos.top)
+            }
+        }
+        
+        function focusPosition() {
+            if ($(".keyboardFocus").length == 1) {
+                var cell = $(".keyboardFocus");
+                var row = cell.closest("tr");
+                var x = cell.index();
+                var y = row.index();
+                return {
+                    left: x,
+                    top: y
+                };
+            } else {
+                return null;
+            }
+        }
         
         function move(dx, dy) {
             if ($(".keyboardFocus").length == 0) {
@@ -100,20 +125,19 @@ script
                 var cell = cells.eq(Math.floor(cells.length / 2));
                 cell.addClass("keyboardFocus");
             } else {
-                var cell = $(".keyboardFocus");
-                var row = cell.closest("tr");
-                var x = cell.index();
-                var y = row.index();
-                console.log(x,y);
+                var focusPos = focusPosition();
+                var x = focusPos.left;
+                var y = focusPos.top;
+                //console.log(x,y);
                 x += dx; y += dy;
-                cell.removeClass("keyboardFocus");
+                $("td").removeClass("keyboardFocus");
                 $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus");
             }
         
         }
         
         $(window).keyup(function(e) {
-            console.log(e.keyCode);
+            //console.log(e.keyCode);
             switch(e.keyCode) { 
                 case 37: // left
                     move(-1,0);
@@ -126,6 +150,9 @@ script
                     break;
                 case 40: // down
                     move(0,1);
+                    break;
+                case 13:
+                    enter();
                     break;
             default:
                 scanner.advance();
