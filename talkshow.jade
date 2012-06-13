@@ -4,6 +4,8 @@ html
         meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
         script(src='jquery.min.js')
         script(src='underscore.js')
+        script(src='grid.js')
+        script(src='scanner.js')
 
     body
         h1 Talkshow.js
@@ -61,130 +63,30 @@ html
     .current_vert
         background-color: #9a9 !important
 
-    .current_horiz.current_vert
+    .current_horiz.current_vert, td:hover
         background-color: white !important
         -webkit-box-shadow inset 0px 0px 20px 30px yellow
 
 
 script
     $(function() {
-        var positions = buildTable(4,3);
-        console.log(positions)
-        $("#vert").css("left", "0px");
-        $("#vert").css("top", $("#grid").offset().top - 10 + "px");
-
-        $("#horiz").css("top", $("#grid").offset().top -40 + "px");
-        $("#horiz").css("left", $("#grid").offset().left -32 + "px");
-
-        var scannerStates = ["hold", "vert", "horiz"];
-        var scannerState = 0;
-                            
-        var animOptions = {
-            duration: 5000,
-            easing: "linear",
-            step: function(now, fx) {
-                var axis = fx.elem.id;
-                if (axis !== scannerStates[scannerState]) {
-                    return;
-                }
-                var offsets = positions[axis];
-                var klass = "current_" + axis;
-                // find the index of the cell the poihnter points to
-                var index = 0;
-                while (now > offsets[index] && index < offsets.length) index++;
-                $("#grid table tr td").removeClass(klass);
-                if (axis === "horiz") {
-                    $("#grid table tr td:nth-child("+index+")").addClass(klass);
-                } else {
-                    $("#grid table tr").eq(index-1>0?index-1:0).find("td").addClass(klass);
-                
-                }
-            }
-        };
-        
-        function animate(axis, animOptions) {
-            $('#'+axis).show();
-            var propNames = {
-                horiz: "left",
-                vert: "top"
-            }
-            var value = axis === "horiz" ?  
-                $("#grid").width() : $("#grid").height();
-            props = {};
-            props[propNames[axis]] = "+=" + value;
-            
-            $('#'+axis).animate(props, animOptions);
-
-            props[propNames[axis]] = "-=" + value;
-
-            var animOptions2 = _.clone(animOptions);
-            animOptions2.complete = function() {
-                //$("td").removeClass("current_"+axis);
-                //$('#'+axis).hide();
-            };
-
-            $('#'+axis).animate(props, animOptions2);
+        function makeColor(x, y) {
+            var index = x+y*4 % 6 + 1;
+            var color = index.toString(2);
+            color = "000".substr(0,3-color.length) + color;
+            color = color.replace(/1/g, "255,").replace(/0/g, "112,");
+            color += ".3"; // alpha
+            color = "rgba(" + color + ")";
+            return color;
         }
+    
+        var grid = Grid(4,3,makeColor);
+        console.log(grid.positions());
         
-        function advanceScannerState() {
-            var old = scannerState;
-            
-            var i = (scannerState + 1) % scannerStates.length;
-            
-            if (old !== 0) {
-                $("#"+scannerStates[old]).hide();
-            } else {
-            }
-            if (i !== 0) {
-                animate(scannerStates[i], animOptions);
-            } else {
-                $("td").removeClass("current_vert");
-                $("td").removeClass("current_horiz");
-                // open!
-            }
-            scannerState = i;
-        }
-        
+        var scanner = Scanner(grid.positions());
         $(window).keyup(function() {
-            advanceScannerState();
+            scanner.advance();
         });
-                
+        
     });
-    
-    function makeColor(x, y) {
-        var index = x+y*4 % 6 + 1;
-        var color = index.toString(2);
-        color = "000".substr(0,3-color.length) + color;
-        color = color.replace(/1/g, "255,").replace(/0/g, "112,");
-        color += ".3"; // alpha
-        color = "rgba(" + color + ")";
-        return color;
-    }
-    
-    function buildTable(cols, rows) {
-        $("#grid").html("<table>");
-        var x, y;
-        for(y=0;y<rows;++y) {
-            var tr = $("<tr>");
-            for(x=0;x<cols;++x) {
-                tr.append(
-                    $("<td>")
-                        .html(x + " / " + y)
-                        .css("background-color", makeColor(x,y))
-                );
-            }
-            $("#grid table").append(tr);
-        }
-        var positions = {
-            vert: [],
-            horiz: []
-        };
-        for(y=0;y<rows;++y) {
-            positions.vert.push($("#grid table tr").eq(y).offset().top);
-        }
-        for(x=0;x<cols;++x) {
-            positions.horiz.push($("#grid table tr").eq(0).find("td").eq(x).offset().left);
-        }
-        return positions;
-    }
     
