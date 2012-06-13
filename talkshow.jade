@@ -6,6 +6,7 @@ html
         script(src='underscore.js')
         script(src='grid.js')
         script(src='scanner.js')
+        script(src='navigation.js')
 
     body
         h1 Talkshow.js
@@ -70,8 +71,13 @@ html
 
 script
     $(function() {
+        var navigationDataSource = NavigationDataSource();
+    
         var myDataSource = {
             colorForCell: function(x, y) {
+                if (x === 0) {
+                    return navigationDataSource.colorForCell(x, y);
+                }
                 var index = x+y*4 % 6 + 1;
                 var color = index.toString(2);
                 color = "000".substr(0,3-color.length) + color;
@@ -80,10 +86,16 @@ script
                 color = "rgba(" + color + ")";
                 return color;
             },
-            labelForCell: function(x,y) {
+            labelForCell: function(x, y) {
+                if (x === 0) {
+                    return navigationDataSource.labelForCell(x, y);
+                }
                 return "label " + x + " / " + y;
             },
             enterCell: function(x, y) {
+                if (x === 0) {
+                    return navigationDataSource.enterCell(x, y);
+                }
                 console.log("entering cell",x,y);
             }
         };
