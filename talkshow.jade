@@ -63,29 +63,75 @@ html
     .current_vert
         background-color: #9a9 !important
 
-    .current_horiz.current_vert, td:hover
+    .current_horiz.current_vert, td:hover, .keyboardFocus
         background-color: white !important
         -webkit-box-shadow inset 0px 0px 20px 30px yellow
 
 
 script
     $(function() {
-        function makeColor(x, y) {
-            var index = x+y*4 % 6 + 1;
-            var color = index.toString(2);
-            color = "000".substr(0,3-color.length) + color;
-            color = color.replace(/1/g, "255,").replace(/0/g, "112,");
-            color += ".3"; // alpha
-            color = "rgba(" + color + ")";
-            return color;
-        }
+        var myDataSource = {
+            colorForCell: function(x, y) {
+                var index = x+y*4 % 6 + 1;
+                var color = index.toString(2);
+                color = "000".substr(0,3-color.length) + color;
+                color = color.replace(/1/g, "255,").replace(/0/g, "112,");
+                color += ".3"; // alpha
+                color = "rgba(" + color + ")";
+                return color;
+            },
+            labelForCell: function(x,y) {
+                return "label " + x + " / " + y;
+            }
+        };
     
-        var grid = Grid(4,3,makeColor);
+        var grid = Grid(4, 3, myDataSource);
         console.log(grid.positions());
         
         var scanner = Scanner(grid.positions());
-        $(window).keyup(function() {
-            scanner.advance();
+        
+        function move(dx, dy) {
+            if ($(".keyboardFocus").length == 0) {
+                // if no cell has the keyboard focus
+                // focus on the center cell
+                var rows = $("#grid tr");
+                var row = rows.eq(Math.floor(rows.length / 2));
+                var cells = row.find("td");
+                var cell = cells.eq(Math.floor(cells.length / 2));
+                cell.addClass("keyboardFocus");
+            } else {
+                var cell = $(".keyboardFocus");
+                var row = cell.closest("tr");
+                var x = cell.index();
+                var y = row.index();
+                console.log(x,y);
+                x += dx; y += dy;
+                cell.removeClass("keyboardFocus");
+                $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus");
+            }
+        
+        }
+        
+        $(window).keyup(function(e) {
+            console.log(e.keyCode);
+            switch(e.keyCode) { 
+                case 37: // left
+                    move(-1,0);
+                    break;
+                case 38: // up
+                    move(0,-1);
+                    break;
+                case 39: // right
+                    move(1,0);
+                    break;
+                case 40: // down
+                    move(0,1);
+                    break;
+            default:
+                scanner.advance();
+                return true;
+            }
+            return false;
         });
         
     });

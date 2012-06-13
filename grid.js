@@ -1,4 +1,4 @@
-function Grid(cols, rows, colorFactory) {
+function Grid(cols, rows, dataSource) {
     $("#grid").html("<table>");
     var x, y;
     for(y=0;y<rows;++y) {
@@ -6,8 +6,8 @@ function Grid(cols, rows, colorFactory) {
         for(x=0;x<cols;++x) {
             tr.append(
                 $("<td>")
-                    .html(x + " / " + y)
-                    .css("background-color", colorFactory(x,y))
+                    .html(dataSource.labelForCell(x,y))
+                    .css("background-color", dataSource.colorForCell(x,y))
             );
         }
         $("#grid table").append(tr);
