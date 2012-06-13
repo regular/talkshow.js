@@ -91,7 +91,7 @@ script
         var grid = Grid(4, 3, myDataSource);
         console.log(grid.positions());
         
-        var scanner = Scanner(grid.positions());
+        var scanner = Scanner(grid.positions(), myDataSource);
 
         function enter() {
             var focusPos = focusPosition();

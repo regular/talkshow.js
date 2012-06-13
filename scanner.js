@@ -1,4 +1,4 @@
-function Scanner(positions) {
+function Scanner(positions, delegate) {
     $("#vert").css("left", "0px");
     $("#vert").css("top", $("#grid").offset().top - 10 + "px");
 
@@ -67,9 +67,16 @@ function Scanner(positions) {
         if (i !== 0) {
             animate(scannerStates[i], animOptions);
         } else {
-            $("td").removeClass("current_vert");
-            $("td").removeClass("current_horiz");
             // open!
+            
+            var cell = $(".current_vert.current_horiz");
+            var row = cell.closest("tr");
+            var x = cell.index();
+            var y = row.index();
+            
+            $("td").removeClass("current_vert").removeClass("current_horiz");
+            
+            delegate.enterCell(x,y);
         }
         scannerState = i;
     }
