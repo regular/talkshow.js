@@ -22,7 +22,8 @@ function NavigationController(grid) {
         push: push,
         pop: pop,
         popToRoot: popToRoot,
-        count: function() {return controllerStack.length;}
+        count: function() {return controllerStack.length;},
+        currentController: function() {return _(controllerStack).last();}
     };
 }
 

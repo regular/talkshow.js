@@ -82,12 +82,18 @@ script
         navigationController.push(myDataSource);
         console.log(grid.positions());
         
-        var scanner = Scanner(grid.positions(), myDataSource);
+        var delegate = {
+            enterCell: function(x,y) {
+                return navigationController.currentController().enterCell(x,y);
+            }
+        };
+        
+        var scanner = Scanner(grid.positions(), delegate);
 
         function enter() {
             var focusPos = focusPosition();
             if (focusPos !== null) {
-                myDataSource.enterCell(focusPos.left, focusPos.top)
+                delegate.enterCell(focusPos.left, focusPos.top)
             }
         }
         
