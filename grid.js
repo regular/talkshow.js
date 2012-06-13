@@ -31,11 +31,39 @@ function Grid(cols, rows, dataSource) {
         }
     }
     if (dataSource) {
-        reloadFromSource(dataSource);        
+        reloadFromSource(dataSource);
+    }
+    
+    function zoomIntoCell(x,y,cb) {
+        cb();
+        /*
+        var cell = $("#grid tr").eq(y).find("td").eq(x);
+        var position = cell.position();
+        var width = cell.width();
+        var height = cell.height();
+        console.log(position, width, height);
+
+        $("#grid td").not(cell).animate({
+            opacity: 0.0
+          }, 500, function() {
+              cell.css("position","relative");
+              //cell.css("left", position.left+"px");
+              //cell.css("top", position.top+"px");
+             // cell.css("width", width+"px");
+              //cell.css("height", height+"px");
+              
+              cell.animate({
+                  left: -width
+
+              },4000, cb);
+              cb();
+          }
+        );*/
     }
 
     return {
         positions: function() {return positions;},
-        reloadFromDataSource: reloadFromSource
+        reloadFromDataSource: reloadFromSource,
+        zoomIntoCell: zoomIntoCell
     };
 }

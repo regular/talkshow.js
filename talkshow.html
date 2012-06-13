@@ -59,7 +59,7 @@ td:hover,
     var navigationController = NavigationController(grid);
     var navigationDataSource = NavigationDataSource(navigationController);
 
-    var myDataSource = GenericDataSource(navigationDataSource, navigationController);
+    var myDataSource = GenericDataSource(grid, navigationDataSource, navigationController);
 
     navigationController.push(myDataSource);
     console.log(grid.positions());

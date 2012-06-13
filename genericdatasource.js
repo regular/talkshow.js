@@ -1,4 +1,4 @@
-function GenericDataSource(navigationDataSource, navigationController, level) {
+function GenericDataSource(grid, navigationDataSource, navigationController, level) {
     if (!level) {
         level = 1;
     }
@@ -26,9 +26,11 @@ function GenericDataSource(navigationDataSource, navigationController, level) {
                 return navigationDataSource.enterCell(x, y);
             }
             console.log("entering cell",x,y);
-            navigationController.push(
-                GenericDataSource(navigationDataSource, navigationController, level + 1)
-            );
+            grid.zoomIntoCell(x, y, function() {
+                navigationController.push(
+                    GenericDataSource(grid, navigationDataSource, navigationController, level + 1)
+                );
+            });
         }
     };
 }
