@@ -36,6 +36,11 @@ td {
   border: 4px solid rgba(255,255,255,0.20);
   -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.30), inset -1px -4px 32px rgba(0,0,0,0.80), inset 1px 4px 16px #fff;
   background-image: -webkit-linear-gradient(bottom, rgba(99,99,99,0.10) 54%, rgba(210,210,210,0.10) 55%, #dcdcdc 85%);
+  background-repeat: no-repeat;
+  background-position: center 25px;
+}
+td.dragTarget {
+  border: 4px dotted #fff;
 }
 .current_horiz,
 .current_vert {
@@ -63,6 +68,45 @@ td:hover,
 
     navigationController.push(myDataSource);
     console.log(grid.positions());
+
+
+    // drag and drop
+    $("#grid td").live("dragenter", function(evt) {
+        $(this).addClass("dragTarget");
+        evt.stopPropagation();
+        evt.preventDefault();
+        return true;
+    });
+    $("#grid td").live("dragleave", function(evt) {
+        $(this).removeClass("dragTarget");
+        evt.stopPropagation();
+        evt.preventDefault();
+        return true;
+    });
+    $("#grid td").live("dragover", function(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        //evt.dataTransfer.dropEffect = 'link';
+    });
+    $("#grid td").live("drop", function(evt) {
+        var cell = $(this);
+        evt.stopPropagation();
+        evt.preventDefault();
+        var files = evt.originalEvent.dataTransfer.files;
+        _(files).each(function(file) {
+            console.log(file.type);
+            console.log(file.mozFullPath);
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var dataUri = reader.result;
+                console.log(dataUri)
+                cell.css("background-image", "url(" + dataUri + ")");
+            };
+            reader.readAsDataURL(file);
+
+        });
+    });
+
 
     var delegate = {
         enterCell: function(x,y) {
@@ -133,9 +177,10 @@ td:hover,
             case 13:
                 enter();
                 break;
+            case 32:
+                scanner.advance();
 
-        default:
-            scanner.advance();
+        dafault:
             return true;
         }
         return false;

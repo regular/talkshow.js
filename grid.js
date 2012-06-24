@@ -12,12 +12,7 @@ function Grid(cols, rows, dataSource) {
             for(x=0;x<cols;++x) {
                 (function(x,y) {
                     tr.append(
-                        $("<td>")
-                            .html(dataSource.labelForCell(x,y))
-                            .css("background-color", dataSource.colorForCell(x,y))
-                            .click(function() {
-                                dataSource.enterCell(x, y);
-                            })
+                        dataSource.cellForPosition(x,y)
                     );
                 })(x,y);
             }
