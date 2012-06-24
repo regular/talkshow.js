@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div></body></html><style type="text/css">body {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script><script src="CellFactory.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div></body></html><style type="text/css">body {
   background-color: #f4f4ed;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   line-height: 160%;
@@ -68,44 +68,6 @@ td:hover,
 
     navigationController.push(myDataSource);
     console.log(grid.positions());
-
-
-    // drag and drop
-    $("#grid td").live("dragenter", function(evt) {
-        $(this).addClass("dragTarget");
-        evt.stopPropagation();
-        evt.preventDefault();
-        return true;
-    });
-    $("#grid td").live("dragleave", function(evt) {
-        $(this).removeClass("dragTarget");
-        evt.stopPropagation();
-        evt.preventDefault();
-        return true;
-    });
-    $("#grid td").live("dragover", function(evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        //evt.dataTransfer.dropEffect = 'link';
-    });
-    $("#grid td").live("drop", function(evt) {
-        var cell = $(this);
-        evt.stopPropagation();
-        evt.preventDefault();
-        var files = evt.originalEvent.dataTransfer.files;
-        _(files).each(function(file) {
-            console.log(file.type);
-            console.log(file.mozFullPath);
-            var reader = new FileReader();
-            reader.onloadend = function() {
-                var dataUri = reader.result;
-                console.log(dataUri)
-                cell.css("background-image", "url(" + dataUri + ")");
-            };
-            reader.readAsDataURL(file);
-
-        });
-    });
 
 
     var delegate = {

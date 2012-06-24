@@ -8,6 +8,7 @@ html
         script(src='scanner.js')
         script(src='navigation.js')
         script(src='genericdatasource.js')
+        script(src='CellFactory.js')
         
     body
         h1 Talkshow.js
@@ -86,44 +87,6 @@ script
 
         navigationController.push(myDataSource);
         console.log(grid.positions());
-        
-        
-        // drag and drop
-        $("#grid td").live("dragenter", function(evt) {
-            $(this).addClass("dragTarget");
-            evt.stopPropagation();
-            evt.preventDefault();
-            return true;
-        });
-        $("#grid td").live("dragleave", function(evt) {
-            $(this).removeClass("dragTarget");
-            evt.stopPropagation();
-            evt.preventDefault();
-            return true;
-        });
-        $("#grid td").live("dragover", function(evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            //evt.dataTransfer.dropEffect = 'link';
-        });
-        $("#grid td").live("drop", function(evt) {
-            var cell = $(this);
-            evt.stopPropagation();
-            evt.preventDefault();
-            var files = evt.originalEvent.dataTransfer.files;
-            _(files).each(function(file) {
-                console.log(file.type);
-                console.log(file.mozFullPath);
-                var reader = new FileReader();
-                reader.onloadend = function() {
-                    var dataUri = reader.result;
-                    console.log(dataUri)
-                    cell.css("background-image", "url(" + dataUri + ")");
-                };
-                reader.readAsDataURL(file);
-                
-            });
-        });
         
         
         var delegate = {

@@ -3,6 +3,8 @@ function GenericDataSource(grid, navigationDataSource, navigationController, lev
         level = 1;
     }
     
+    var factory = CellFactory();
+    
     function colorForCell(x, y) {
         var index = x+y*4 % 6 + 1;
         var color = index.toString(2);
@@ -39,12 +41,13 @@ function GenericDataSource(grid, navigationDataSource, navigationController, lev
             var label = labelForCell(x,y);
             var color = colorForCell(x,y);
             
-            return $("<td>")
-                .html(label)
-                .css("background-color", color)
-                .click(function() {
-                    enterCell(x, y);
-                });
+            var cell = factory.makeCell(label, color);
+            
+            cell.click(function() {
+                enterCell(x, y);
+            });
+            
+            return cell;
         }
     };
 }
