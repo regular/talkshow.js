@@ -60,7 +60,11 @@ function NavigationDataSource(navigationController) {
     return {
         cellForPosition: function(x, y) {
             return $("<td>")
-                .html(labelForCell(x,y))
+                .append(
+                    $("<div>")
+                        .addClass("label")
+                        .html(labelForCell(x,y))
+                )
                 .css("background-color", colorForCell(x,y))
                 .click(function() {
                     enterCell(x, y);

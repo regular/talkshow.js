@@ -27,17 +27,24 @@ table {
   border-spacing: 25px;
 }
 td {
-  font-size: 28pt;
-  font-weight: 800;
   vertical-align: middle;
-  text-align: center;
   border-collapse: collapse;
   -webkit-border-radius: 32px;
   border: 4px solid rgba(255,255,255,0.20);
   -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.30), inset -1px -4px 32px rgba(0,0,0,0.80), inset 1px 4px 16px #fff;
   background-image: -webkit-linear-gradient(bottom, rgba(99,99,99,0.10) 54%, rgba(210,210,210,0.10) 55%, #dcdcdc 85%);
   background-repeat: no-repeat;
-  background-position: center 25px;
+  padding: 0 0;
+  text-align: center;
+  overflow: hidden;
+}
+td .label {
+  display: block;
+  font-size: 28pt;
+  font-weight: 800;
+}
+td img {
+  padding-top: 15px;
 }
 td.dragTarget {
   border: 4px dotted #fff;
@@ -59,12 +66,25 @@ td:hover,
   -webkit-box-shadow: inset 0px 0px 20px 30px #ff0;
 }
 </style><script>$(function() {
+    window.uniqueId = (function() {
+        var currId = localStorage.getItem("currId");
+        if (!currId) currId = 0;
+        return function() {
+            var ret = currId;
+            currId++;
+            localStorage.setItem("currId", currId);
+            return ret;
+        };
+    })();
+
     var grid = Grid(4, 3);
 
     var navigationController = NavigationController(grid);
     var navigationDataSource = NavigationDataSource(navigationController);
 
-    var myDataSource = GenericDataSource(grid, navigationDataSource, navigationController);
+    var rootNodeId = localStorage.getItem("root");
+    console.log("rootNodeId", rootNodeId);
+    var myDataSource = GenericDataSource(grid, navigationDataSource, navigationController, null, null, rootNodeId);
 
     navigationController.push(myDataSource);
     console.log(grid.positions());
@@ -140,7 +160,7 @@ td:hover,
                 enter();
                 break;
             case 32:
-                scanner.advance();
+                //scanner.advance();
 
         dafault:
             return true;

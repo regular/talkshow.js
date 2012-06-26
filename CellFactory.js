@@ -8,6 +8,8 @@ function CellFactory(delegate) {
                 var label = $(this);
                 var parent = $(this).parent();
                 $("<input>")
+                    .val(label.html())
+                    .addClass("label")
                     .click(function() {return false;})
                     .keypress(function(e) {
                         if (e.keyCode == 13) {
@@ -17,7 +19,7 @@ function CellFactory(delegate) {
                     .blur(function() {
                         var newText = $(this).val();
                         if (delegate) {
-                            delegate.labelTextChanged(newText)
+                            delegate.labelTextChanged(parent, newText)
                         }
                         $(this).remove();
                         label.html(newText);
@@ -31,6 +33,14 @@ function CellFactory(delegate) {
             });
     }
     
+    function setBackgroundImage(cell, dataUri) {
+        cell.css("background-image", "url(" + dataUri + ")");
+    }
+    
+    function setIcon(image, dataUri) {
+        image.attr("src", dataUri);
+    }
+    
     function handleImage(image, cell, dataUri) {
         image.attr("src", dataUri);
         
@@ -39,18 +49,25 @@ function CellFactory(delegate) {
         console.log("image dropped:", image.width(), "x", image.height())
         
         // if the image is large, we use it as a cell background
-        if (w>cell.width() || h>128) {
-            cell.css("background-image", "url(" + dataUri + ")");
+        if (w>256 || h>128) {
+            setBackgroundImage(cell, dataUri);
             image.hide();
+            if (delegate) {
+                delegate.imageChanged(cell, "background", dataUri);
+            }            
         } else {
+            if (delegate) {
+                delegate.imageChanged(cell, "icon", dataUri);
+            }
             image.show();
         }
     }
     
     return {
-        makeCell: function(label, color) {
+        makeCell: function(data, color) {
+            var label = data.label || "n/a";
             var image = $("<img>");
-            
+                        
             var cell = $("<td>")
                 .append(makeLabel(label))
                 .append(image)
@@ -87,14 +104,18 @@ function CellFactory(delegate) {
                     var reader = new FileReader();
                     reader.onloadend = function() {
                         var dataUri = reader.result;
-                        if (delegate) {
-                            delegate.imageChanged(dataUri)
-                        }
                         handleImage(image, cell, dataUri);
                     };
                     reader.readAsDataURL(file);
                 });
             });
+            
+            if ("background" in data) {
+                setBackgroundImage(cell, data.background);
+            }
+            if ("icon" in data) {
+                setIcon(image, data.icon);
+            }
                 
             return cell;
         }
