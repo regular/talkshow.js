@@ -9,13 +9,17 @@ html
         script(src='navigation.js')
         script(src='genericdatasource.js')
         script(src='CellFactory.js')
+        script(src='Settings.js')
         
     body
         h1 Talkshow.js
         #grid
         #horiz.pointer ⬇
         #vert.pointer ➨
-
+        #settings
+            input#editSwitch(type="checkbox")
+            span edit mode
+            ul#colors.showInEditMode
         
 :stylus
     body
@@ -63,7 +67,7 @@ html
         font-size:28pt
         font-weight: 800
         
-    td img
+     td img
         padding-top: 15px
      
      td.dragTarget
@@ -82,9 +86,23 @@ html
         background-color: white !important
         -webkit-box-shadow inset 0px 0px 20px 30px yellow
 
+    #settings
+        margin: 50px 50px
+        color: black
+        
+    #colors
+        list-style: none
+        
+    #colors li
+        display: inline-block
+        width: 32px
+        height: 32px
+        border: 1px solid #aaa
+        margin-right: 4px
 
 script
     $(function() {
+
         window.uniqueId = (function() {
             var currId = localStorage.getItem("currId");
             if (!currId) currId = 0;

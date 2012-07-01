@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script><script src="CellFactory.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div></body></html><style type="text/css">body {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script><script src="CellFactory.js"></script><script src="Settings.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div><div id="settings"><input id="editSwitch" type="checkbox"/><span>edit mode</span><ul id="colors" class="showInEditMode"></ul></div></body></html><style type="text/css">body {
   background-color: #f4f4ed;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   line-height: 160%;
@@ -65,7 +65,22 @@ td:hover,
   background-color: #fff !important;
   -webkit-box-shadow: inset 0px 0px 20px 30px #ff0;
 }
+#settings {
+  margin: 50px 50px;
+  color: #000;
+}
+#colors {
+  list-style: none;
+}
+#colors li {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #aaa;
+  margin-right: 4px;
+}
 </style><script>$(function() {
+
     window.uniqueId = (function() {
         var currId = localStorage.getItem("currId");
         if (!currId) currId = 0;
