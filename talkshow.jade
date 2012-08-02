@@ -101,41 +101,40 @@ html
         border: 1px solid #aaa
         margin-right: 4px
 
-script
-    $(function() {
-
-        window.uniqueId = (function() {
-            var currId = localStorage.getItem("currId");
-            if (!currId) currId = 0;
-            return function() {
-                var ret = currId;
-                currId++;
-                localStorage.setItem("currId", currId);
-                return ret;
-            };
-        })();
+:coffeescript
+        $ () ->
+            window.uniqueId = (() ->
+                currId = localStorage.getItem("currId")
+                if not currId? then currId = 0
+                return () ->
+                    ret = currId
+                    currId++
+                    localStorage.setItem("currId", currId)
+                    return ret
+            )()
     
-        var grid = Grid(4, 3);
+            grid = Grid 4, 2
 
-        var navigationController = NavigationController(grid);
-        var navigationDataSource = NavigationDataSource(navigationController);
+            navigationController = NavigationController grid
+            navigationDataSource = NavigationDataSource navigationController
     
-        var rootNodeId = localStorage.getItem("root");
-        console.log("rootNodeId", rootNodeId);
-        var myDataSource = GenericDataSource(grid, navigationDataSource, navigationController, null, null, rootNodeId);
+            rootNodeId = localStorage.getItem "root"
+            console.log "rootNodeId", rootNodeId
+            
+            myDataSource = GenericDataSource grid, 
+                navigationDataSource, 
+                navigationController, 
+                null, 
+                null, 
+                rootNodeId
 
-        navigationController.push(myDataSource);
-        console.log(grid.positions());
-        
-        
-        var delegate = {
-            enterCell: function(x,y) {
-                return navigationController.currentController().enterCell(x,y);
-            }
-        };
-        
-        var scanner = Scanner(grid.positions(), delegate);
+            navigationController.push myDataSource
+            console.log grid.positions()
 
-        var keyboardInput = new KeyboardInput(delegate);
-    });
+            delegate = 
+                enterCell: (x,y) ->
+                    navigationController.currentController().enterCell(x,y)
+
+            scanner = Scanner(grid.positions(), delegate)
+            keyboardInput = new KeyboardInput(delegate)
     

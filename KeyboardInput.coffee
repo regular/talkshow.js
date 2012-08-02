@@ -8,31 +8,54 @@ class KeyboardInput
         $(window).keyup (e) =>
             @keyHandler e
             
+        # comment this if you don't want the keyboard
+        # focus to be visible initially
+        @setFocusPosition 0, 0
+    
+    isInMenu: (e) ->
+        return @focusPosition().left is 0
+          
     keyHandler: (e) ->
         # console.log(e.keyCode);
-        switch e.keyCode
-            when 37 # left
-                @step -1
-                # @move(-1,0);
+        console.dir e
+        switch String.fromCharCode e.keyCode
+            when 'M'
+                if @isInMenu()
+                    @setFocusPosition 1 ,0
+                else
+                    @setFocusPosition 0,0
 
-            when 38 # up
-                @move(0,-1);
+            else 
+        
+                switch e.keyCode
+                    when 37 # left
+                        if not @isInMenu()
+                            @step -1, 1, 0, @colCount-1, @rowCount-1
+                        else
+                            @step -1, 0, 0, 0, @rowCount-1
+                        # @move(-1,0);
 
-            when 39 # right
-                @step 1
-                # @move(1,0);
+                    when 39 # right
+                        if not @isInMenu()
+                            @step 1, 1, 0, @colCount-1, @rowCount-1
+                        else
+                            @step 1, 0, 0, 0, @rowCount-1
+                        # @move(1,0);
 
-            when 40 # down
-                @move 0,1
+                    when 38 # up
+                        @move(0,-1);
 
-            when 13
-                @enter()
+                    when 40 # down
+                        @move 0,1
 
-            when 32
-                #scanner.advance();
+                    when 13
+                        @enter()
+
+                    when 32
+                        #scanner.advance();
                 
-            else
-                return true
+                    else
+                        return true
 
         return false
 
@@ -74,39 +97,46 @@ class KeyboardInput
             x = focusPos.left
             y = focusPos.top
              #console.log(x,y)
-            x += d; y += dy;
+            x += dx;
+            y += dy;
+            
+            if x >= @colCount then x = 0
+            if x < 0 then x = @colCount-1
+            if y >= @rowCount then y = 0
+            if y < 0 then y = @rowCount-1
             @setFocusPosition x, y
 
-    step: (d) ->
+    step: (d, sx=0, sy=0, ex=@colCount-1, ey=@rowCount-1) ->
         if $(".keyboardFocus").length == 0
             # if no cell has the keyboard focus
             # focus on the first cell
             rows = $("#grid tr")
-            row = rows.eq(0)
+            row = rows.eq(sy)
             cells = row.find("td")
-            cell = cells.eq(0)
+            cell = cells.eq(sx)
             cell.addClass("keyboardFocus")
         else
             focusPos = @focusPosition()
             x = focusPos.left
             y = focusPos.top
-            # console.log(x,y);
+
             x += d
-            if x < 0
-                x= @colCount-1
+            
+            if x < sx
+                x = ex
                 y--
 
-            if x >= @colCount
-                x=0
+            if x > ex
+                x = sx
                 y++
         
-            if y < 0
-                y = @rowCount-1
-                x = @colCount-1
+            if y < sy
+                y = ey
+                x = ex
 
-            if y >= @rowCount
-                x = 0 
-                y = 0
+            if y > ey
+                x = sx
+                y = sy
 
             @setFocusPosition x, y
 
