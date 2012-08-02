@@ -10,6 +10,7 @@ html
         script(src='genericdatasource.js')
         script(src='CellFactory.js')
         script(src='Settings.js')
+        script(src='KeyboardInput.js')
         
     body
         h1 Talkshow.js
@@ -135,74 +136,6 @@ script
         
         var scanner = Scanner(grid.positions(), delegate);
 
-        function enter() {
-            var focusPos = focusPosition();
-            if (focusPos !== null) {
-                delegate.enterCell(focusPos.left, focusPos.top)
-            }
-        }
-        
-        function focusPosition() {
-            if ($(".keyboardFocus").length == 1) {
-                var cell = $(".keyboardFocus");
-                var row = cell.closest("tr");
-                var x = cell.index();
-                var y = row.index();
-                return {
-                    left: x,
-                    top: y
-                };
-            } else {
-                return null;
-            }
-        }
-        
-        function move(dx, dy) {
-            if ($(".keyboardFocus").length == 0) {
-                // if no cell has the keyboard focus
-                // focus on the center cell
-                var rows = $("#grid tr");
-                var row = rows.eq(Math.floor(rows.length / 2));
-                var cells = row.find("td");
-                var cell = cells.eq(Math.floor(cells.length / 2));
-                cell.addClass("keyboardFocus");
-            } else {
-                var focusPos = focusPosition();
-                var x = focusPos.left;
-                var y = focusPos.top;
-                //console.log(x,y);
-                x += dx; y += dy;
-                $("td").removeClass("keyboardFocus");
-                $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus");
-            }
-        
-        }
-        
-        $(window).keyup(function(e) {
-            //console.log(e.keyCode);
-            switch(e.keyCode) { 
-                case 37: // left
-                    move(-1,0);
-                    break;
-                case 38: // up
-                    move(0,-1);
-                    break;
-                case 39: // right
-                    move(1,0);
-                    break;
-                case 40: // down
-                    move(0,1);
-                    break;
-                case 13:
-                    enter();
-                    break;
-                case 32:
-                    //scanner.advance();
-            dafault:
-                return true;
-            }
-            return false;
-        });
-        
+        var keyboardInput = new KeyboardInput(delegate);
     });
     

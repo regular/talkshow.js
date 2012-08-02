@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script><script src="CellFactory.js"></script><script src="Settings.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div><div id="settings"><input id="editSwitch" type="checkbox"/><span>edit mode</span><ul id="colors" class="showInEditMode"></ul></div></body></html><style type="text/css">body {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="underscore.js"></script><script src="grid.js"></script><script src="scanner.js"></script><script src="navigation.js"></script><script src="genericdatasource.js"></script><script src="CellFactory.js"></script><script src="Settings.js"></script><script src="KeyboardInput.js"></script></head><body><h1>Talkshow.js</h1><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div><div id="settings"><input id="editSwitch" type="checkbox"/><span>edit mode</span><ul id="colors" class="showInEditMode"></ul></div></body></html><style type="text/css">body {
   background-color: #f4f4ed;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   line-height: 160%;
@@ -113,76 +113,7 @@ td:hover,
 
     var scanner = Scanner(grid.positions(), delegate);
 
-    function enter() {
-        var focusPos = focusPosition();
-        if (focusPos !== null) {
-            delegate.enterCell(focusPos.left, focusPos.top)
-        }
-    }
-
-    function focusPosition() {
-        if ($(".keyboardFocus").length == 1) {
-            var cell = $(".keyboardFocus");
-            var row = cell.closest("tr");
-            var x = cell.index();
-            var y = row.index();
-            return {
-                left: x,
-                top: y
-            };
-        } else {
-            return null;
-        }
-    }
-
-    function move(dx, dy) {
-        if ($(".keyboardFocus").length == 0) {
-            // if no cell has the keyboard focus
-            // focus on the center cell
-            var rows = $("#grid tr");
-            var row = rows.eq(Math.floor(rows.length / 2));
-            var cells = row.find("td");
-            var cell = cells.eq(Math.floor(cells.length / 2));
-            cell.addClass("keyboardFocus");
-        } else {
-            var focusPos = focusPosition();
-            var x = focusPos.left;
-            var y = focusPos.top;
-            //console.log(x,y);
-            x += dx; y += dy;
-            $("td").removeClass("keyboardFocus");
-            $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus");
-        }
-
-    }
-
-    $(window).keyup(function(e) {
-        //console.log(e.keyCode);
-        switch(e.keyCode) { 
-            case 37: // left
-                move(-1,0);
-                break;
-            case 38: // up
-                move(0,-1);
-                break;
-            case 39: // right
-                move(1,0);
-                break;
-            case 40: // down
-                move(0,1);
-                break;
-            case 13:
-                enter();
-                break;
-            case 32:
-                //scanner.advance();
-
-        dafault:
-            return true;
-        }
-        return false;
-    });
-
+    var keyboardInput = new KeyboardInput(delegate);
 });
 
 </script>
