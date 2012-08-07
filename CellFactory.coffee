@@ -84,9 +84,9 @@ class CellFactory
         
         cell = $("<td>")
             .append(@makeIconBar data)
-            .append(@makeLabel label)
             .append(audio)
             .append(image)
+            .append(@makeLabel label)
             .css("background-color", color)
                 
         cell.bind "dragenter", (evt) ->

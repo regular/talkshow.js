@@ -78,7 +78,7 @@
       image = $("<img>");
       audio = $("<audio>");
       self = this;
-      cell = $("<td>").append(this.makeIconBar(data)).append(this.makeLabel(label)).append(audio).append(image).css("background-color", color);
+      cell = $("<td>").append(this.makeIconBar(data)).append(audio).append(image).append(this.makeLabel(label)).css("background-color", color);
       cell.bind("dragenter", function(evt) {
         $(this).addClass("dragTarget");
         evt.stopPropagation();
