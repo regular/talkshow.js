@@ -45,12 +45,22 @@ class CellFactory
         
         switch majorType
             when "audio"
-                @setSound audio, dataUri
-                audio[0].play()
-                @delegate?.soundChanged(cell, "navigationSound", dataUri)
+                self = this
+                $(".soundDropped .dialog").show()
+                $(".dialog .choice").click ->
+                    $(".soundDropped .dialog").hide()
+                    switch $(this).attr "type"
+                        when "navigationSound"
+                            self.setSound audio, dataUri
+                            audio[0].play()
+                            self.delegate?.soundChanged(cell, "navigationSound", dataUri)
+                        when "sound"
+                            audio.closest("td").find(".iconbar .sound").show()
+                            self.delegate?.soundChanged(cell, "sound", dataUri)
+                        
                 
                 
-            when "image"        
+            when "image"
                 # w = image.width()
                 # h = image.height()
                 # console.log "image dropped: #{image.width()}x#{image.height()}"

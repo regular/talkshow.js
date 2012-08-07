@@ -55,16 +55,28 @@
     };
 
     CellFactory.prototype.handleDrop = function(image, audio, cell, dataUri, mimeType) {
-      var majorType, _ref, _ref1;
+      var majorType, self, _ref;
       majorType = mimeType.split("/")[0];
       switch (majorType) {
         case "audio":
-          this.setSound(audio, dataUri);
-          audio[0].play();
-          return (_ref = this.delegate) != null ? _ref.soundChanged(cell, "navigationSound", dataUri) : void 0;
+          self = this;
+          $(".soundDropped .dialog").show();
+          return $(".dialog .choice").click(function() {
+            var _ref, _ref1;
+            $(".soundDropped .dialog").hide();
+            switch ($(this).attr("type")) {
+              case "navigationSound":
+                self.setSound(audio, dataUri);
+                audio[0].play();
+                return (_ref = self.delegate) != null ? _ref.soundChanged(cell, "navigationSound", dataUri) : void 0;
+              case "sound":
+                audio.closest("td").find(".iconbar .sound").show();
+                return (_ref1 = self.delegate) != null ? _ref1.soundChanged(cell, "sound", dataUri) : void 0;
+            }
+          });
         case "image":
           this.setIcon(image, dataUri);
-          return (_ref1 = this.delegate) != null ? _ref1.imageChanged(cell, "icon", dataUri) : void 0;
+          return (_ref = this.delegate) != null ? _ref.imageChanged(cell, "icon", dataUri) : void 0;
       }
     };
 
