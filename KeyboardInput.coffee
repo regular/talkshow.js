@@ -15,31 +15,32 @@ class KeyboardInput
     isInMenu: (e) ->
         return @focusPosition().left is 0
           
-    keyHandler: (e) ->
+    keyHandler: (e) =>
         # console.log(e.keyCode);
-        console.dir e
+        # console.dir e
         switch String.fromCharCode e.keyCode
             when 'M'
                 if @isInMenu()
                     @setFocusPosition 1 ,0
+                    timerCallback = ()=>
+                        @timeoutID = window.setTimeout timerCallback, 1000
+                        @splitStep 1
+                    @timeoutID = window.setTimeout timerCallback, 1000
+                    
                 else
                     @setFocusPosition 0,0
+                    window.clearTimeout @timeoutID
+                    
 
             else 
         
                 switch e.keyCode
                     when 37 # left
-                        if not @isInMenu()
-                            @step -1, 1, 0, @colCount-1, @rowCount-1
-                        else
-                            @step -1, 0, 0, 0, @rowCount-1
+                        @splitStep -1
                         # @move(-1,0);
 
                     when 39 # right
-                        if not @isInMenu()
-                            @step 1, 1, 0, @colCount-1, @rowCount-1
-                        else
-                            @step 1, 0, 0, 0, @rowCount-1
+                        @splitStep 1
                         # @move(1,0);
 
                     when 38 # up
@@ -139,5 +140,11 @@ class KeyboardInput
                 y = sy
 
             @setFocusPosition x, y
+
+    splitStep: (d) ->
+        if not @isInMenu()
+            @step d, 1, 0, @colCount-1, @rowCount-1
+        else
+            @step d, 0, 0, 0, @rowCount-1
 
 window.KeyboardInput = KeyboardInput
