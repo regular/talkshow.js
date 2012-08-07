@@ -58,12 +58,19 @@ class CellFactory
                 @delegate.imageChanged(cell, "icon", dataUri)
             image.show()
     
+    makeIconBar: (data) ->
+        $("<div>")
+            .addClass("iconbar")
+            .append($("<img>").attr "src", "icons/08-chat@2x.png")
+            .append($("<img>").attr "src", "icons/65-note@2x.png")
+        
     makeCell: (data, color) ->
         label = data.label ? "n/a"
         image = $("<img>")
         self = this
         
         cell = $("<td>")
+            .append(@makeIconBar data)
             .append(@makeLabel label)
             .append(image)
             .css("background-color", color)

@@ -69,12 +69,16 @@
       }
     };
 
+    CellFactory.prototype.makeIconBar = function(data) {
+      return $("<div>").addClass("iconbar").append($("<img>").attr("src", "icons/08-chat@2x.png")).append($("<img>").attr("src", "icons/65-note@2x.png"));
+    };
+
     CellFactory.prototype.makeCell = function(data, color) {
       var cell, image, label, self, _ref;
       label = (_ref = data.label) != null ? _ref : "n/a";
       image = $("<img>");
       self = this;
-      cell = $("<td>").append(this.makeLabel(label)).append(image).css("background-color", color);
+      cell = $("<td>").append(this.makeIconBar(data)).append(this.makeLabel(label)).append(image).css("background-color", color);
       cell.bind("dragenter", function(evt) {
         $(this).addClass("dragTarget");
         evt.stopPropagation();
