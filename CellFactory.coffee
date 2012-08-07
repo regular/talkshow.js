@@ -35,43 +35,57 @@ class CellFactory
     setIcon: (image, dataUri) ->
         image.attr "src", dataUri
         image.show()
+
+    setSound: (audio, dataUri) ->
+        audio.attr "src", dataUri
+        audio.closest("td").find(".iconbar .navigationSound").show()
     
-    handleImage: (image, cell, dataUri) ->
-        image.attr "src", dataUri
+    handleDrop: (image, audio, cell, dataUri, mimeType) ->
+        majorType = mimeType.split("/")[0]
         
-        w = image.width()
-        h = image.height()
-        console.log "image dropped: #{image.width()}x#{image.height()}"
+        switch majorType
+            when "audio"
+                @setSound audio, dataUri
+                audio[0].play()
+                @delegate?.soundChanged(cell, "navigationSound", dataUri)
+                
+                
+            when "image"        
+                # w = image.width()
+                # h = image.height()
+                # console.log "image dropped: #{image.width()}x#{image.height()}"
+                #         
+                # TODO: this does not really work,
+                # probably image loading is async
         
-        # TODO: this does not really work,
-        # probably image loading is async
-        
-        # if the image is large, we use it as a cell background
-        if w>256 or h>128
-            @setBackgroundImage cell, dataUri
-            image.hide()
-            if @delegate
-                @delegate.imageChanged cell, "background", dataUri
-        
-        else
-            if @delegate
-                @delegate.imageChanged(cell, "icon", dataUri)
-            image.show()
+                # if the image is large, we use it as a cell background
+                # if w>256 or h>128
+                #     @setBackgroundImage cell, dataUri
+                #     image.hide()
+                #     if @delegate
+                #         @delegate.imageChanged cell, "background", dataUri
+                #         
+                # else
+                
+                @setIcon image, dataUri
+                @delegate?.imageChanged(cell, "icon", dataUri)
     
     makeIconBar: (data) ->
         $("<div>")
             .addClass("iconbar")
-            .append($("<img>").attr "src", "icons/08-chat@2x.png")
-            .append($("<img>").attr "src", "icons/65-note@2x.png")
+            .append($("<img>").hide().addClass("navigationSound").attr "src", "icons/08-chat@2x.png")
+            .append($("<img>").hide().addClass("sound").attr "src", "icons/65-note@2x.png")
         
     makeCell: (data, color) ->
         label = data.label ? "n/a"
         image = $("<img>")
+        audio = $("<audio>")
         self = this
         
         cell = $("<td>")
             .append(@makeIconBar data)
             .append(@makeLabel label)
+            .append(audio)
             .append(image)
             .css("background-color", color)
                 
@@ -104,7 +118,7 @@ class CellFactory
                 reader = new FileReader()
                 reader.onloadend = () ->
                     dataUri = reader.result
-                    self.handleImage image, cell, dataUri
+                    self.handleDrop image, audio, cell, dataUri, file.type
                 reader.readAsDataURL file
 
         if "background" of data
@@ -112,6 +126,9 @@ class CellFactory
         
         if "icon" of data
             @setIcon image, data.icon
+
+        if "navigationSound" of data
+            @setSound audio, data.navigationSound
         
         return cell
 

@@ -17,6 +17,9 @@ class DataSource
             imageChanged: (cell, role, dataUri) =>
                 @save(cell, role, dataUri);
 
+            soundChanged: (cell, role, dataUri) =>
+                @save(cell, role, dataUri);
+
             cellChanged: (cell) =>
                 @save(cell, "cell")
 

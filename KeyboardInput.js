@@ -22,6 +22,12 @@
       return this.focusPosition().left === 0;
     };
 
+    KeyboardInput.prototype.playNavigationSound = function() {
+      return $(".keyboardFocus audio").each(function() {
+        return this.play();
+      });
+    };
+
     KeyboardInput.prototype.keyHandler = function(e) {
       var timerCallback,
         _this = this;
@@ -29,9 +35,11 @@
         case 'M':
           if (this.isInMenu()) {
             this.setFocusPosition(1, 0);
+            this.playNavigationSound();
             timerCallback = function() {
               _this.timeoutID = window.setTimeout(timerCallback, 1000);
-              return _this.splitStep(1);
+              _this.splitStep(1);
+              return _this.playNavigationSound();
             };
             this.timeoutID = window.setTimeout(timerCallback, 1000);
           } else {

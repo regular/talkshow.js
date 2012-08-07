@@ -14,7 +14,10 @@ class KeyboardInput
     
     isInMenu: (e) ->
         return @focusPosition().left is 0
-          
+    
+    playNavigationSound: ->
+        $(".keyboardFocus audio").each ()-> @play()
+    
     keyHandler: (e) =>
         # console.log(e.keyCode);
         # console.dir e
@@ -22,9 +25,11 @@ class KeyboardInput
             when 'M'
                 if @isInMenu()
                     @setFocusPosition 1 ,0
+                    @playNavigationSound()
                     timerCallback = ()=>
                         @timeoutID = window.setTimeout timerCallback, 1000
                         @splitStep 1
+                        @playNavigationSound()
                     @timeoutID = window.setTimeout timerCallback, 1000
                     
                 else

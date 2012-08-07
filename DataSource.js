@@ -29,6 +29,9 @@
         imageChanged: function(cell, role, dataUri) {
           return _this.save(cell, role, dataUri);
         },
+        soundChanged: function(cell, role, dataUri) {
+          return _this.save(cell, role, dataUri);
+        },
         cellChanged: function(cell) {
           return _this.save(cell, "cell");
         }
