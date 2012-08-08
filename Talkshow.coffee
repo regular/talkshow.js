@@ -8,8 +8,7 @@ class Talkshow
         rootNodeId = localStorage.getItem "root"
         console.log "rootNodeId", rootNodeId
         
-        myDataSource = new NavigationDataSource grid, 
-            @navigationController, 
+        myDataSource = new DataSource grid, 
             1, # level
             rootNodeId
 
@@ -18,15 +17,18 @@ class Talkshow
         @navigationController.push myDataSource
 
         #scanner = Scanner(grid.positions(), tnis)
-        keyboardInput = new KeyboardInput(this)
+        keyboardInput = new BlindKeyboardInput(this)
 
     enterCell: (x,y) ->
         @navigationController.currentController().enterCell(x,y)
     
+    pop: ->
+        if @navigationController.count()>1
+            @navigationController.pop()
+    
     enteredCell: (dataSource, position, level, nodeId) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
-        myDataSource = new NavigationDataSource @grid, 
-            @navigationController, 
+        myDataSource = new DataSource @grid, 
             level,
             nodeId,
             dataSource,
