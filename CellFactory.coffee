@@ -29,17 +29,25 @@ class CellFactory
             label.hide()
             return false
             
-    setBackgroundImage: (cell, dataUri) ->
+    setBackgroundImage: (image, dataUri) ->
+        cell = $(image).closest("td")
         cell.css "background-image", "url(#{dataUri})"
+        image.hide()
     
     setIcon: (image, dataUri) ->
         image.attr "src", dataUri
         image.show()
 
-    setSound: (audio, dataUri) ->
+    setNavigationSound: (audio, dataUri) ->
         audio.attr "src", dataUri
         audio.closest("td").find(".iconbar .navigationSound").show()
-    
+
+    setSound: (audio, dataUri) ->
+        audio.closest("td").find(".iconbar .sound").show()
+
+    setPhoto: (audio, dataUri) ->
+        audio.closest("td").find(".iconbar .photo").show()
+
     handleDrop: (image, audio, cell, dataUri, mimeType) ->
         majorType = mimeType.split("/")[0]
         
@@ -51,38 +59,34 @@ class CellFactory
                     $(".soundDropped .dialog").hide()
                     switch $(this).attr "type"
                         when "navigationSound"
-                            self.setSound audio, dataUri
+                            self.setNavigationSound audio, dataUri
                             audio[0].play()
                             self.delegate?.soundChanged(cell, "navigationSound", dataUri)
                         when "sound"
-                            audio.closest("td").find(".iconbar .sound").show()
+                            self.setSound audio, dataUri
                             self.delegate?.soundChanged(cell, "sound", dataUri)
-                        
-                
-                
+            
             when "image"
-                # w = image.width()
-                # h = image.height()
-                # console.log "image dropped: #{image.width()}x#{image.height()}"
-                #         
-                # TODO: this does not really work,
-                # probably image loading is async
-        
-                # if the image is large, we use it as a cell background
-                # if w>256 or h>128
-                #     @setBackgroundImage cell, dataUri
-                #     image.hide()
-                #     if @delegate
-                #         @delegate.imageChanged cell, "background", dataUri
-                #         
-                # else
-                
-                @setIcon image, dataUri
-                @delegate?.imageChanged(cell, "icon", dataUri)
+                self = this
+                $(".imageDropped .dialog").show()
+                $(".dialog .choice").click ->
+                    $(".imageDropped .dialog").hide()
+                    switch $(this).attr "type"
+                        when "icon"
+                            self.setIcon image, dataUri
+                            self.delegate?.imageChanged(cell, "icon", dataUri)
+                        when "background"
+                            self.setBackgroundImage image, dataUri
+                            self.delegate?.imageChanged(cell, "background", dataUri)
+                        when "photo"
+                            self.setPhoto image, dataUri
+                            self.delegate?.imageChanged(cell, "photo", dataUri)
+            
     
     makeIconBar: (data) ->
         $("<div>")
             .addClass("iconbar")
+            .append($("<img>").hide().addClass("photo").attr "src", "icons/86-camera@2x.png")
             .append($("<img>").hide().addClass("navigationSound").attr "src", "icons/08-chat@2x.png")
             .append($("<img>").hide().addClass("sound").attr "src", "icons/65-note@2x.png")
         
@@ -132,13 +136,19 @@ class CellFactory
                 reader.readAsDataURL file
 
         if "background" of data
-            @setBackgroundImage cell, data.background
+            @setBackgroundImage image, data.background
         
         if "icon" of data
             @setIcon image, data.icon
 
+        if "sound" of data
+            @setSound audio, data.sound
+
+        if "photo" of data
+            @setPhoto image, data.photo
+
         if "navigationSound" of data
-            @setSound audio, data.navigationSound
+            @setNavigationSound audio, data.navigationSound
         
         return cell
 

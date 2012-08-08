@@ -40,8 +40,11 @@
       });
     };
 
-    CellFactory.prototype.setBackgroundImage = function(cell, dataUri) {
-      return cell.css("background-image", "url(" + dataUri + ")");
+    CellFactory.prototype.setBackgroundImage = function(image, dataUri) {
+      var cell;
+      cell = $(image).closest("td");
+      cell.css("background-image", "url(" + dataUri + ")");
+      return image.hide();
     };
 
     CellFactory.prototype.setIcon = function(image, dataUri) {
@@ -49,13 +52,21 @@
       return image.show();
     };
 
-    CellFactory.prototype.setSound = function(audio, dataUri) {
+    CellFactory.prototype.setNavigationSound = function(audio, dataUri) {
       audio.attr("src", dataUri);
       return audio.closest("td").find(".iconbar .navigationSound").show();
     };
 
+    CellFactory.prototype.setSound = function(audio, dataUri) {
+      return audio.closest("td").find(".iconbar .sound").show();
+    };
+
+    CellFactory.prototype.setPhoto = function(audio, dataUri) {
+      return audio.closest("td").find(".iconbar .photo").show();
+    };
+
     CellFactory.prototype.handleDrop = function(image, audio, cell, dataUri, mimeType) {
-      var majorType, self, _ref;
+      var majorType, self;
       majorType = mimeType.split("/")[0];
       switch (majorType) {
         case "audio":
@@ -66,22 +77,37 @@
             $(".soundDropped .dialog").hide();
             switch ($(this).attr("type")) {
               case "navigationSound":
-                self.setSound(audio, dataUri);
+                self.setNavigationSound(audio, dataUri);
                 audio[0].play();
                 return (_ref = self.delegate) != null ? _ref.soundChanged(cell, "navigationSound", dataUri) : void 0;
               case "sound":
-                audio.closest("td").find(".iconbar .sound").show();
+                self.setSound(audio, dataUri);
                 return (_ref1 = self.delegate) != null ? _ref1.soundChanged(cell, "sound", dataUri) : void 0;
             }
           });
         case "image":
-          this.setIcon(image, dataUri);
-          return (_ref = this.delegate) != null ? _ref.imageChanged(cell, "icon", dataUri) : void 0;
+          self = this;
+          $(".imageDropped .dialog").show();
+          return $(".dialog .choice").click(function() {
+            var _ref, _ref1, _ref2;
+            $(".imageDropped .dialog").hide();
+            switch ($(this).attr("type")) {
+              case "icon":
+                self.setIcon(image, dataUri);
+                return (_ref = self.delegate) != null ? _ref.imageChanged(cell, "icon", dataUri) : void 0;
+              case "background":
+                self.setBackgroundImage(image, dataUri);
+                return (_ref1 = self.delegate) != null ? _ref1.imageChanged(cell, "background", dataUri) : void 0;
+              case "photo":
+                self.setPhoto(image, dataUri);
+                return (_ref2 = self.delegate) != null ? _ref2.imageChanged(cell, "photo", dataUri) : void 0;
+            }
+          });
       }
     };
 
     CellFactory.prototype.makeIconBar = function(data) {
-      return $("<div>").addClass("iconbar").append($("<img>").hide().addClass("navigationSound").attr("src", "icons/08-chat@2x.png")).append($("<img>").hide().addClass("sound").attr("src", "icons/65-note@2x.png"));
+      return $("<div>").addClass("iconbar").append($("<img>").hide().addClass("photo").attr("src", "icons/86-camera@2x.png")).append($("<img>").hide().addClass("navigationSound").attr("src", "icons/08-chat@2x.png")).append($("<img>").hide().addClass("sound").attr("src", "icons/65-note@2x.png"));
     };
 
     CellFactory.prototype.makeCell = function(data, color) {
@@ -128,13 +154,19 @@
         });
       });
       if ("background" in data) {
-        this.setBackgroundImage(cell, data.background);
+        this.setBackgroundImage(image, data.background);
       }
       if ("icon" in data) {
         this.setIcon(image, data.icon);
       }
+      if ("sound" in data) {
+        this.setSound(audio, data.sound);
+      }
+      if ("photo" in data) {
+        this.setPhoto(image, data.photo);
+      }
       if ("navigationSound" in data) {
-        this.setSound(audio, data.navigationSound);
+        this.setNavigationSound(audio, data.navigationSound);
       }
       return cell;
     };

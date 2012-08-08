@@ -28,10 +28,17 @@ html
             .soundDropped
                 .dialog
                     .title Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?
-                    form
-                        .choice(type="navigationSound") Navigationsansage
-                        .choice(type="sound") Musik/Hörbuch
-                        .choice Abbrechen
+                    .choice(type="navigationSound") Navigationsansage
+                    .choice(type="sound") Musik/Hörbuch
+                    .choice Abbrechen
+
+            .imageDropped
+                .dialog
+                    .title Ist diese Bilddatei als Symbol, als Feldhintergrund  oder als Inhalt (Foto) gedacht?
+                    .choice(type="icon") Symbol
+                    .choice(type="background") Feldhintergrund
+                    .choice(type="photo") Foto
+                    .choice Abbrechen
                         
 :stylus
     .dialog
