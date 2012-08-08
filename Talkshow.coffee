@@ -11,10 +11,15 @@ class Talkshow
         myDataSource = new DataSource grid, 
             1, # level
             rootNodeId
-
         myDataSource.delegate = this
 
-        @navigationController.push myDataSource
+        @yesNoDataSource = new DataSource grid, 
+            1, # level
+            "yes_no"
+            
+        splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+
+        @navigationController.push splitDataSource
 
         #scanner = Scanner(grid.positions(), tnis)
         keyboardInput = new BlindKeyboardInput(this)
@@ -35,7 +40,9 @@ class Talkshow
             position
         myDataSource.delegate = this
         
-        @navigationController.push myDataSource
+        splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+        
+        @navigationController.push splitDataSource
         
     
 window.Talkshow = Talkshow

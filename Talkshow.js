@@ -5,14 +5,16 @@
   Talkshow = (function() {
 
     function Talkshow() {
-      var grid, keyboardInput, myDataSource, rootNodeId;
+      var grid, keyboardInput, myDataSource, rootNodeId, splitDataSource;
       grid = new Grid(4, 2);
       this.navigationController = new NavigationController(grid);
       rootNodeId = localStorage.getItem("root");
       console.log("rootNodeId", rootNodeId);
       myDataSource = new DataSource(grid, 1, rootNodeId);
       myDataSource.delegate = this;
-      this.navigationController.push(myDataSource);
+      this.yesNoDataSource = new DataSource(grid, 1, "yes_no");
+      splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
+      this.navigationController.push(splitDataSource);
       keyboardInput = new BlindKeyboardInput(this);
     }
 
@@ -27,11 +29,12 @@
     };
 
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId) {
-      var myDataSource;
+      var myDataSource, splitDataSource;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
       myDataSource = new DataSource(this.grid, level, nodeId, dataSource, position);
       myDataSource.delegate = this;
-      return this.navigationController.push(myDataSource);
+      splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
+      return this.navigationController.push(splitDataSource);
     };
 
     return Talkshow;
