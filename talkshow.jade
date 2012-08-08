@@ -12,6 +12,8 @@ html
         script(src='CellFactory.js')
         script(src='Settings.js')
         script(src='KeyboardInput.js')
+        script(src='AudioPlayer.js')
+        script(src='ImagePlayer.js')
         script(src='Talkshow.js')
         
     body
@@ -25,6 +27,20 @@ html
             ul#colors.showInEditMode
         
         #dialogs
+            .audioPlayer
+                .dialog
+                    .title Audio Player
+                    audio(controls="controls")
+                    .choice(type="pause") Pause (L)
+                    .choice(type="back") Zurück (R)
+
+            .imagePlayer
+                .dialog
+                    .title Foto
+                    img
+                    div
+                        .choice(type="back") Zurück (R)
+
             .soundDropped
                 .dialog
                     .title Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?

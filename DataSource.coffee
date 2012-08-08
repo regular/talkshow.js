@@ -97,17 +97,27 @@ class DataSource
     
     enterCell: (x, y) ->
         console.log "entering cell #{x}/#{y}"
-        nodeId = null
+        childNodeId = null
         
         if @children
             key = "#{x}/#{y}"
             if key of @children
-                nodeId = @children[key]
+                childNodeId = @children[key]
 
-        console.log "nodeId", nodeId
+        console.log "nodeId", childNodeId
         
-        #@grid.zoomIntoCell x, y, ()=> 
-        @delegate?.enteredCell this, {x:x,y:y}, @level + 1, nodeId
+        if childNodeId is null
+            data = @cellData x,y
+            if "sound" of data
+                audioPlayer = new AudioPlayer(data.sound)
+                return
+
+            if "photo" of data
+                imagePlayer = new ImagePlayer(data.photo)
+                return
+            
+        
+        @delegate?.enteredCell this, {x:x,y:y}, @level + 1, childNodeId
     
     cellForPosition: (x, y) ->
         #label = labelForCell x,y

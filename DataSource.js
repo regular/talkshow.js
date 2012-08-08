@@ -125,20 +125,31 @@
     };
 
     DataSource.prototype.enterCell = function(x, y) {
-      var key, nodeId, _ref;
+      var audioPlayer, childNodeId, data, imagePlayer, key, _ref;
       console.log("entering cell " + x + "/" + y);
-      nodeId = null;
+      childNodeId = null;
       if (this.children) {
         key = "" + x + "/" + y;
         if (key in this.children) {
-          nodeId = this.children[key];
+          childNodeId = this.children[key];
         }
       }
-      console.log("nodeId", nodeId);
+      console.log("nodeId", childNodeId);
+      if (childNodeId === null) {
+        data = this.cellData(x, y);
+        if ("sound" in data) {
+          audioPlayer = new AudioPlayer(data.sound);
+          return;
+        }
+        if ("photo" in data) {
+          imagePlayer = new ImagePlayer(data.photo);
+          return;
+        }
+      }
       return (_ref = this.delegate) != null ? _ref.enteredCell(this, {
         x: x,
         y: y
-      }, this.level + 1, nodeId) : void 0;
+      }, this.level + 1, childNodeId) : void 0;
     };
 
     DataSource.prototype.cellForPosition = function(x, y) {
