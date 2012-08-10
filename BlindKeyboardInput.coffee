@@ -1,16 +1,35 @@
-class BlindKeyboardInput
+root = exports ? this # http://stackoverflow.com/questions/4214731/coffeescript-global-variables
+
+# The publicly accessible Singleton fetcher
+class root.KeyboardInput
+  _instance = undefined # Must be declared here to force the closure on the class
+  @get: (args) -> # Must be a static method
+    _instance ?= new _BlindKeyboardInput args
+
+
+class _BlindKeyboardInput
 
     constructor: (delegate) ->
         @delegate = delegate
         @rowCount = $("#grid tr").length
         @colCount = $("#grid tr:eq(1) td").length
+        @modalKeyHandlers = []
         
         $(window).keyup (e) =>
-            @keyHandler e
+            if @modalKeyHandlers.length isnt 0
+                _(@modalKeyHandlers).last()?.handleKey e
+            else
+                @handleKey e
             
         # comment this if you don't want the keyboard
         # focus to be visible initially
         @setFocusPosition 0, 0
+            
+    pushModalKeyHandler: (kh) ->
+        @modalKeyHandlers.push(kh)
+        
+    popModalKeyHandler: ->
+        @modalKeyHandlers.pop()
     
     isInMenu: (e) ->
         return @focusPosition().left is 0
@@ -18,7 +37,7 @@ class BlindKeyboardInput
     playNavigationSound: ->
         $(".keyboardFocus audio").each ()-> @play()
     
-    keyHandler: (e) =>
+    handleKey: (e) =>
         # console.log(e.keyCode);
         # console.dir e
         switch String.fromCharCode e.keyCode
@@ -63,8 +82,8 @@ class BlindKeyboardInput
                     when 40 # down
                         @move 0,1
 
-                    when 13
-                        @enter()
+                    #when 13
+                    #    @enter()
 
                     when 32
                         #scanner.advance();
@@ -113,7 +132,10 @@ class BlindKeyboardInput
             }
 
         else
-            return null
+            return {
+                left: 0
+                top: 0
+            }
 
     setFocusPosition: (x,y) ->
         $("td").removeClass("keyboardFocus")
@@ -181,5 +203,3 @@ class BlindKeyboardInput
             @step d, 1, 0, @colCount-1, @rowCount-1
         else
             @step d, 0, 0, 0, @rowCount-1
-
-window.BlindKeyboardInput = BlindKeyboardInput

@@ -15,6 +15,7 @@
         var label, parent;
         label = $(this);
         parent = $(this).parent();
+        KeyboardInput.get().pushModalKeyHandler(null);
         $("<input>").val(label.html()).addClass("label").click(function() {
           return false;
         }).keypress(function(e) {
@@ -32,7 +33,8 @@
           }
           $(this).remove();
           label.html(newText);
-          return label.show();
+          label.show();
+          return KeyboardInput.get().popModalKeyHandler();
         }).insertAfter(label);
         parent.find("input").focus();
         label.hide();

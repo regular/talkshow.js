@@ -22,7 +22,7 @@ class Talkshow
         @navigationController.push splitDataSource
 
         #scanner = Scanner(grid.positions(), tnis)
-        keyboardInput = new BlindKeyboardInput(this)
+        keyboardInput = KeyboardInput.get(this)
 
     enterCell: (x,y) ->
         @navigationController.currentController().enterCell(x,y)

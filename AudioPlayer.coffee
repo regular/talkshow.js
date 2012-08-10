@@ -1,6 +1,7 @@
-class AudioPlayer
+class AudioPlayer extends ModalDialog
 
     constructor: (dataURI) ->
+        super
         @audio = $(".audioPlayer audio")[0]
         $(".audioPlayer .dialog").show()
         $(@audio).attr "src", dataURI
@@ -11,12 +12,16 @@ class AudioPlayer
         $(".audioPlayer .choice").click ->
             switch $(this).attr "type"
                 when "pause"
-                   self.audio.pause()
+                   self.leftKeyPressed()
                    
                 when "back"
                     self.close()
+    
+    leftKeyPressed: ->
+        @audio.pause()
                     
     close: ->
+        super
         @audio.pause()
         $(".audioPlayer .dialog").hide()
         

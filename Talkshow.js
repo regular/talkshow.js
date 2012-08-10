@@ -15,7 +15,7 @@
       this.yesNoDataSource = new DataSource(grid, 1, "yes_no");
       splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
       this.navigationController.push(splitDataSource);
-      keyboardInput = new BlindKeyboardInput(this);
+      keyboardInput = KeyboardInput.get(this);
     }
 
     Talkshow.prototype.enterCell = function(x, y) {

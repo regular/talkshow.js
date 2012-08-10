@@ -7,6 +7,7 @@ class CellFactory
         return $("<div>").html(text).addClass("label").click ()->
             label = $(this)
             parent = $(this).parent()
+            KeyboardInput.get().pushModalKeyHandler null
             $("<input>").val(label.html()).addClass("label")
             .click( ()-> 
                 return false
@@ -22,6 +23,7 @@ class CellFactory
                 $(this).remove()
                 label.html(newText)
                 label.show()
+                KeyboardInput.get().popModalKeyHandler()
             )
             .insertAfter(label)
             

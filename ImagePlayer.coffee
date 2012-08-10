@@ -1,6 +1,7 @@
-class ImagePlayer
+class ImagePlayer extends ModalDialog
 
     constructor: (dataURI) ->
+        super
         @img = $(".imagePlayer img")[0]
         $(".imagePlayer .dialog").show()
         $(@img).attr "src", dataURI
@@ -12,6 +13,7 @@ class ImagePlayer
                     self.close()
     
     close: ->
+        super
         $(".imagePlayer .dialog").hide()
         
 window.ImagePlayer = ImagePlayer
