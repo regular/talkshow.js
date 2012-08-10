@@ -27,9 +27,13 @@ class _BlindKeyboardInput
             
     pushModalKeyHandler: (kh) ->
         @modalKeyHandlers.push(kh)
+        console.log "stopping timer **"
+        @stopTimer()
         
     popModalKeyHandler: ->
         @modalKeyHandlers.pop()
+        if @modalKeyHandlers.length is 0 and not @isInMenu()
+            @startTimer()
     
     isInMenu: (e) ->
         return @focusPosition().left is 0
@@ -94,6 +98,7 @@ class _BlindKeyboardInput
         return false
 
     startTimer: ->
+        @stopTimer()
         timerCallback = ()=>
             @timeoutID = window.setTimeout timerCallback, 1000
             @splitStep 1
@@ -101,16 +106,17 @@ class _BlindKeyboardInput
         @timeoutID = window.setTimeout timerCallback, 1000
         
     stopTimer: ->
+        console.log "STOP timer"
         window.clearTimeout @timeoutID
 
     enter: ->
         @stopTimer()
         focusPos = @focusPosition()
         if focusPos?
+            @startTimer()
             @delegate?.enterCell focusPos.left, focusPos.top
             @setFocusPosition 1 ,0
             @playNavigationSound()
-            @startTimer()
             
     pop: ->
         @stopTimer()

@@ -42,11 +42,16 @@
     }
 
     _BlindKeyboardInput.prototype.pushModalKeyHandler = function(kh) {
-      return this.modalKeyHandlers.push(kh);
+      this.modalKeyHandlers.push(kh);
+      console.log("stopping timer **");
+      return this.stopTimer();
     };
 
     _BlindKeyboardInput.prototype.popModalKeyHandler = function() {
-      return this.modalKeyHandlers.pop();
+      this.modalKeyHandlers.pop();
+      if (this.modalKeyHandlers.length === 0 && !this.isInMenu()) {
+        return this.startTimer();
+      }
     };
 
     _BlindKeyboardInput.prototype.isInMenu = function(e) {
@@ -113,6 +118,7 @@
     _BlindKeyboardInput.prototype.startTimer = function() {
       var timerCallback,
         _this = this;
+      this.stopTimer();
       timerCallback = function() {
         _this.timeoutID = window.setTimeout(timerCallback, 1000);
         _this.splitStep(1);
@@ -122,6 +128,7 @@
     };
 
     _BlindKeyboardInput.prototype.stopTimer = function() {
+      console.log("STOP timer");
       return window.clearTimeout(this.timeoutID);
     };
 
@@ -130,12 +137,12 @@
       this.stopTimer();
       focusPos = this.focusPosition();
       if (focusPos != null) {
+        this.startTimer();
         if ((_ref = this.delegate) != null) {
           _ref.enterCell(focusPos.left, focusPos.top);
         }
         this.setFocusPosition(1, 0);
-        this.playNavigationSound();
-        return this.startTimer();
+        return this.playNavigationSound();
       }
     };
 

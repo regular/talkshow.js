@@ -1,9 +1,10 @@
 class ModalDialog
-    constructor: ->
+    constructor: (@callback)->
         KeyboardInput.get().pushModalKeyHandler this
         
     close: ->
         KeyboardInput.get().popModalKeyHandler()
+        @callback(null) if @callback?
         
     handleKey: (e) =>
         switch String.fromCharCode e.keyCode

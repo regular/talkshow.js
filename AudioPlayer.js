@@ -8,10 +8,10 @@
 
     __extends(AudioPlayer, _super);
 
-    function AudioPlayer(dataURI) {
+    function AudioPlayer(dataURI, cb) {
       var self,
         _this = this;
-      AudioPlayer.__super__.constructor.apply(this, arguments);
+      AudioPlayer.__super__.constructor.call(this, cb);
       this.audio = $(".audioPlayer audio")[0];
       $(".audioPlayer .dialog").show();
       $(this.audio).attr("src", dataURI);

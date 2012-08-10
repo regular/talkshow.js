@@ -5,13 +5,18 @@
 
   ModalDialog = (function() {
 
-    function ModalDialog() {
+    function ModalDialog(callback) {
+      this.callback = callback;
       this.handleKey = __bind(this.handleKey, this);
+
       KeyboardInput.get().pushModalKeyHandler(this);
     }
 
     ModalDialog.prototype.close = function() {
-      return KeyboardInput.get().popModalKeyHandler();
+      KeyboardInput.get().popModalKeyHandler();
+      if (this.callback != null) {
+        return this.callback(null);
+      }
     };
 
     ModalDialog.prototype.handleKey = function(e) {

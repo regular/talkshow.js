@@ -8,9 +8,9 @@
 
     __extends(ImagePlayer, _super);
 
-    function ImagePlayer(dataURI) {
+    function ImagePlayer(dataURI, cb) {
       var self;
-      ImagePlayer.__super__.constructor.apply(this, arguments);
+      ImagePlayer.__super__.constructor.call(this, cb);
       this.img = $(".imagePlayer img")[0];
       $(".imagePlayer .dialog").show();
       $(this.img).attr("src", dataURI);

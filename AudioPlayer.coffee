@@ -1,7 +1,7 @@
 class AudioPlayer extends ModalDialog
 
-    constructor: (dataURI) ->
-        super
+    constructor: (dataURI, cb) ->
+        super cb
         @audio = $(".audioPlayer audio")[0]
         $(".audioPlayer .dialog").show()
         $(@audio).attr "src", dataURI
