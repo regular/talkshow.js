@@ -15,6 +15,7 @@ class DataSource
                 @save(cell, "label", text)
 
             imageChanged: (cell, role, dataUri) =>
+                console.log "imageChanged"
                 @save(cell, role, dataUri);
 
             soundChanged: (cell, role, dataUri) =>

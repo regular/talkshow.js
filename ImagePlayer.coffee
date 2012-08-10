@@ -7,7 +7,7 @@ class ImagePlayer extends ModalDialog
         $(@img).attr "src", dataURI
         
         self = this
-        $(".imagePlayer .choice").click ->
+        $(".imagePlayer .choice").unbind("click").click ->
             switch $(this).attr "type"
                 when "back"
                     self.close()

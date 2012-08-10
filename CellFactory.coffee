@@ -34,7 +34,7 @@ class CellFactory
     setBackgroundImage: (image, dataUri) ->
         cell = $(image).closest("td")
         cell.css "background-image", "url(#{dataUri})"
-        image.hide()
+        #image.hide()
     
     setIcon: (image, dataUri) ->
         image.attr "src", dataUri
@@ -52,12 +52,13 @@ class CellFactory
 
     handleDrop: (image, audio, cell, dataUri, mimeType) ->
         majorType = mimeType.split("/")[0]
+        console.log "handleDrop", majorType
         
         switch majorType
             when "audio"
                 self = this
                 $(".soundDropped .dialog").show()
-                $(".dialog .choice").click ->
+                $(".dialog .choice").unbind("click").click ->
                     $(".soundDropped .dialog").hide()
                     switch $(this).attr "type"
                         when "navigationSound"
@@ -71,11 +72,12 @@ class CellFactory
             when "image"
                 self = this
                 $(".imageDropped .dialog").show()
-                $(".dialog .choice").click ->
+                $(".dialog .choice").unbind("click").click ->
                     $(".imageDropped .dialog").hide()
                     switch $(this).attr "type"
                         when "icon"
                             self.setIcon image, dataUri
+                            console.log "calling imageChanged"
                             self.delegate?.imageChanged(cell, "icon", dataUri)
                         when "background"
                             self.setBackgroundImage image, dataUri

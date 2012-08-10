@@ -45,8 +45,7 @@
     CellFactory.prototype.setBackgroundImage = function(image, dataUri) {
       var cell;
       cell = $(image).closest("td");
-      cell.css("background-image", "url(" + dataUri + ")");
-      return image.hide();
+      return cell.css("background-image", "url(" + dataUri + ")");
     };
 
     CellFactory.prototype.setIcon = function(image, dataUri) {
@@ -70,11 +69,12 @@
     CellFactory.prototype.handleDrop = function(image, audio, cell, dataUri, mimeType) {
       var majorType, self;
       majorType = mimeType.split("/")[0];
+      console.log("handleDrop", majorType);
       switch (majorType) {
         case "audio":
           self = this;
           $(".soundDropped .dialog").show();
-          return $(".dialog .choice").click(function() {
+          return $(".dialog .choice").unbind("click").click(function() {
             var _ref, _ref1;
             $(".soundDropped .dialog").hide();
             switch ($(this).attr("type")) {
@@ -90,12 +90,13 @@
         case "image":
           self = this;
           $(".imageDropped .dialog").show();
-          return $(".dialog .choice").click(function() {
+          return $(".dialog .choice").unbind("click").click(function() {
             var _ref, _ref1, _ref2;
             $(".imageDropped .dialog").hide();
             switch ($(this).attr("type")) {
               case "icon":
                 self.setIcon(image, dataUri);
+                console.log("calling imageChanged");
                 return (_ref = self.delegate) != null ? _ref.imageChanged(cell, "icon", dataUri) : void 0;
               case "background":
                 self.setBackgroundImage(image, dataUri);

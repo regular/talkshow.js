@@ -9,7 +9,7 @@ class AudioPlayer extends ModalDialog
         $(@audio).bind "ended", => @close()
         
         self = this
-        $(".audioPlayer .choice").click ->
+        $(".audioPlayer .choice").unbind("click").click ->
             switch $(this).attr "type"
                 when "pause"
                    self.leftKeyPressed()

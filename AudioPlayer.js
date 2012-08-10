@@ -20,7 +20,7 @@
         return _this.close();
       });
       self = this;
-      $(".audioPlayer .choice").click(function() {
+      $(".audioPlayer .choice").unbind("click").click(function() {
         switch ($(this).attr("type")) {
           case "pause":
             return self.leftKeyPressed();

@@ -15,7 +15,7 @@
       $(".imagePlayer .dialog").show();
       $(this.img).attr("src", dataURI);
       self = this;
-      $(".imagePlayer .choice").click(function() {
+      $(".imagePlayer .choice").unbind("click").click(function() {
         switch ($(this).attr("type")) {
           case "back":
             return self.close();

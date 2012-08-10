@@ -27,6 +27,7 @@
           return _this.save(cell, "label", text);
         },
         imageChanged: function(cell, role, dataUri) {
+          console.log("imageChanged");
           return _this.save(cell, role, dataUri);
         },
         soundChanged: function(cell, role, dataUri) {
