@@ -57,6 +57,19 @@ html
                     .choice(type="background") Feldhintergrund
                     .choice(type="photo") Foto
                     .choice Abbrechen
+                    
+            .delete
+                .navigationSound
+                    .dialog
+                        .title Soll diese Navigationsansage gelöscht werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+                        
+                .photo
+                    .dialog
+                        .title Soll dieses Foto gelöscht werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
                         
 :stylus
     .dialog
