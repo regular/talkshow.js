@@ -20,13 +20,16 @@
     }
 
     ModalDialog.prototype.handleButton = function(name) {
-      return alert(name);
+      if (this.callback) {
+        this.callback(name);
+      }
+      return this.close();
     };
 
     ModalDialog.prototype.close = function() {
       this.dialogElement.hide();
       KeyboardInput.get().popModalKeyHandler();
-      if (this.callback != null) {
+      if (this.callback) {
         return this.callback(null);
       }
     };

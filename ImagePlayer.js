@@ -14,13 +14,6 @@
       $(this.img).attr("src", dataURI);
     }
 
-    ImagePlayer.prototype.handleButton = function(name) {
-      switch (name) {
-        case "back":
-          return self.close();
-      }
-    };
-
     return ImagePlayer;
 
   })(ModalDialog);

@@ -68,34 +68,31 @@
     };
 
     CellFactory.prototype.handleDrop = function(cell, dataUri, mimeType) {
-      var majorType, self;
+      var dialog, majorType,
+        _this = this;
       majorType = mimeType.split("/")[0];
       console.log("handleDrop", majorType);
       switch (majorType) {
         case 'audio':
-          self = this;
-          $(".soundDropped .dialog").show();
-          return $(".dialog .choice").unbind("click").click(function() {
-            var aspect, _ref;
-            $(".soundDropped .dialog").hide();
-            aspect = $(this).attr("type");
-            self.setContent(cell, aspect, dataUri);
-            if ((_ref = self.delegate) != null) {
-              _ref.contentChanged(cell, aspect, dataUri);
-            }
-            if (aspect === 'navigationSound') {
-              return cell.find('audio')[0].play();
+          return dialog = new ModalDialog(".soundDropped .dialog", function(aspect) {
+            var _ref;
+            if (aspect) {
+              _this.setContent(cell, aspect, dataUri);
+              if ((_ref = _this.delegate) != null) {
+                _ref.contentChanged(cell, aspect, dataUri);
+              }
+              if (aspect === 'navigationSound') {
+                return cell.find('audio')[0].play();
+              }
             }
           });
         case 'image':
-          self = this;
-          $('.imageDropped .dialog').show();
-          return $('.dialog .choice').unbind('click').click(function() {
-            var aspect, _ref;
-            $('.imageDropped .dialog').hide();
-            aspect = $(this).attr('type');
-            self.setContent(cell, aspect, dataUri);
-            return (_ref = self.delegate) != null ? _ref.contentChanged(cell, aspect, dataUri) : void 0;
+          return dialog = new ModalDialog('.imageDropped .dialog', function(aspect) {
+            var _ref;
+            if (aspect) {
+              _this.setContent(cell, aspect, dataUri);
+              return (_ref = _this.delegate) != null ? _ref.contentChanged(cell, aspect, dataUri) : void 0;
+            }
           });
       }
     };
@@ -108,18 +105,14 @@
         return $('<img>').hide().addClass(aspect).attr('src', imageURL).click(function() {
           var cell, dialog;
           cell = iconBar.closest("td");
-          dialog = $(".delete ." + aspect + " .dialog");
-          dialog.show();
-          dialog.find('.choice').unbind('click').click(function() {
+          dialog = new ModalDialog(".delete ." + aspect + " .dialog", function(name) {
             var _ref;
-            dialog.hide();
-            switch ($(this).attr('type')) {
-              case 'delete':
-                if ((_ref = self.delegate) != null) {
-                  _ref.contentChanged(cell, aspect, null);
-                }
-                cell = iconBar.closest('td');
-                return self.setContent(cell, aspect, null);
+            if (name === 'delete') {
+              if ((_ref = self.delegate) != null) {
+                _ref.contentChanged(cell, aspect, null);
+              }
+              cell = iconBar.closest('td');
+              return self.setContent(cell, aspect, null);
             }
           });
           return false;

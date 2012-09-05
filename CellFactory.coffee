@@ -60,27 +60,19 @@ class CellFactory
         
         switch majorType
             when 'audio'
-                self = this
-                $(".soundDropped .dialog").show()
-                $(".dialog .choice").unbind("click").click ->
-                    $(".soundDropped .dialog").hide()
-                    aspect = $(this).attr "type"
+                dialog = new ModalDialog ".soundDropped .dialog", (aspect) =>
+                    if aspect
+                        @setContent cell, aspect, dataUri
+                        @delegate?.contentChanged cell, aspect, dataUri
                     
-                    self.setContent cell, aspect, dataUri
-                    self.delegate?.contentChanged cell, aspect, dataUri
-                    
-                    if aspect is 'navigationSound'
-                        cell.find('audio')[0].play()
+                        if aspect is 'navigationSound'
+                            cell.find('audio')[0].play()
             
             when 'image'
-                self = this
-                $('.imageDropped .dialog').show()
-                $('.dialog .choice').unbind('click').click ->
-                    $('.imageDropped .dialog').hide()
-                    aspect = $(this).attr 'type'
-                    
-                    self.setContent cell, aspect, dataUri
-                    self.delegate?.contentChanged cell, aspect, dataUri
+                dialog = new ModalDialog '.imageDropped .dialog', (aspect) =>
+                    if aspect
+                        @setContent cell, aspect, dataUri
+                        @delegate?.contentChanged cell, aspect, dataUri
     
     makeIconBar: (data) ->
         iconBar = $('<div>').addClass 'iconbar'
@@ -91,17 +83,13 @@ class CellFactory
                 .hide()
                 .addClass(aspect)
                 .attr('src', imageURL)
-                .click () ->
+                .click ->
                     cell = iconBar.closest "td"
-                    dialog = $(".delete .#{aspect} .dialog")
-                    dialog.show()
-                    dialog.find('.choice').unbind('click').click ->
-                        dialog.hide()
-                        switch $(this).attr 'type'
-                            when 'delete'
-                                self.delegate?.contentChanged cell, aspect, null
-                                cell = iconBar.closest 'td'
-                                self.setContent cell, aspect, null
+                    dialog = new ModalDialog ".delete .#{aspect} .dialog", (name) ->
+                        if name is 'delete'
+                            self.delegate?.contentChanged cell, aspect, null
+                            cell = iconBar.closest 'td'
+                            self.setContent cell, aspect, null
                             
                     return false
 

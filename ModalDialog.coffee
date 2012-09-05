@@ -9,12 +9,13 @@ class ModalDialog
             self.handleButton $(this).attr "type"
 
     handleButton: (name) ->
-        alert name
+        @callback(name) if @callback
+        @close()
         
     close: ->
         @dialogElement.hide()
         KeyboardInput.get().popModalKeyHandler()
-        @callback(null) if @callback?
+        @callback(null) if @callback
         
     handleKey: (e) =>
         switch String.fromCharCode e.keyCode
