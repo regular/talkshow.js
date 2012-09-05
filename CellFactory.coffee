@@ -34,10 +34,10 @@ class CellFactory
     setContent: (cell, aspect, dataUri) ->
         aspect = 'background' if aspect is 'backgroundImage'
         
-        icon = cell.find '.icon'
+        icon = cell.children '.icon'
         audio = cell.find 'audio'
         
-        cell.find(".iconbar .#{aspect}")[if dataUri then 'show' else 'hide']()
+        cell.find(".iconbar>.#{aspect}")[if dataUri then 'show' else 'hide']()
         
         switch aspect
             when 'background'
@@ -67,7 +67,7 @@ class CellFactory
                     aspect = $(this).attr "type"
                     
                     self.setContent cell, aspect, dataUri
-                    self.delegate?.soundChanged cell, aspect, dataUri
+                    self.delegate?.contentChanged cell, aspect, dataUri
                     
                     if aspect is 'navigationSound'
                         cell.find('audio')[0].play()
@@ -80,7 +80,7 @@ class CellFactory
                     aspect = $(this).attr 'type'
                     
                     self.setContent cell, aspect, dataUri
-                    self.delegate?.imageChanged cell, aspect, dataUri
+                    self.delegate?.contentChanged cell, aspect, dataUri
     
     makeIconBar: (data) ->
         iconBar = $('<div>').addClass 'iconbar'
@@ -99,14 +99,14 @@ class CellFactory
                         dialog.hide()
                         switch $(this).attr 'type'
                             when 'delete'
-                                if aspect in 'photo icon background'.split(' ')
-                                    self.delegate?.imageChanged(cell, aspect, null)
-                                # TODO: sounds
+                                self.delegate?.contentChanged cell, aspect, null
                                 cell = iconBar.closest 'td'
                                 self.setContent cell, aspect, null
                             
                     return false
-        
+
+        iconBar.append makeIconBarItem 'icon', 'icons/icon.png'
+        iconBar.append makeIconBarItem 'background', 'icons/background.png'
         iconBar.append makeIconBarItem 'photo', 'icons/86-camera@2x.png'
         iconBar.append makeIconBarItem 'navigationSound', 'icons/08-chat@2x.png'
         iconBar.append makeIconBarItem 'sound', 'icons/65-note@2x.png'

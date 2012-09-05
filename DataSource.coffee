@@ -13,13 +13,9 @@ class DataSource
             labelTextChanged: (cell, text) =>
                 console.log  "labelTextChanged", cell, text
                 @save(cell, "label", text)
-
-            imageChanged: (cell, role, dataUri) =>
-                console.log "imageChanged"
-                @save(cell, role, dataUri);
-
-            soundChanged: (cell, role, dataUri) =>
-                @save(cell, role, dataUri);
+            
+            contentChanged: (cell, aspect, dataUri) =>
+                @save(cell, aspect, dataUri);
 
             cellChanged: (cell) =>
                 @save(cell, "cell")
@@ -109,11 +105,11 @@ class DataSource
         
         if childNodeId is null
             data = @cellData x,y
-            if "sound" of data
+            if data.sound
                 audioPlayer = new AudioPlayer(data.sound)
                 return
 
-            if "photo" of data
+            if data.photo
                 imagePlayer = new ImagePlayer(data.photo)
                 return
             

@@ -26,12 +26,8 @@
           console.log("labelTextChanged", cell, text);
           return _this.save(cell, "label", text);
         },
-        imageChanged: function(cell, role, dataUri) {
-          console.log("imageChanged");
-          return _this.save(cell, role, dataUri);
-        },
-        soundChanged: function(cell, role, dataUri) {
-          return _this.save(cell, role, dataUri);
+        contentChanged: function(cell, aspect, dataUri) {
+          return _this.save(cell, aspect, dataUri);
         },
         cellChanged: function(cell) {
           return _this.save(cell, "cell");
@@ -138,11 +134,11 @@
       console.log("nodeId", childNodeId);
       if (childNodeId === null) {
         data = this.cellData(x, y);
-        if ("sound" in data) {
+        if (data.sound) {
           audioPlayer = new AudioPlayer(data.sound);
           return;
         }
-        if ("photo" in data) {
+        if (data.photo) {
           imagePlayer = new ImagePlayer(data.photo);
           return;
         }
