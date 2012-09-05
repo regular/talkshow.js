@@ -9,26 +9,24 @@
     __extends(AudioPlayer, _super);
 
     function AudioPlayer(dataURI, cb) {
-      var self,
-        _this = this;
-      AudioPlayer.__super__.constructor.call(this, cb);
+      var _this = this;
+      AudioPlayer.__super__.constructor.call(this, '.audioPlayer .dialog', cb);
       this.audio = $(".audioPlayer audio")[0];
-      $(".audioPlayer .dialog").show();
       $(this.audio).attr("src", dataURI);
       this.audio.play();
       $(this.audio).bind("ended", function() {
         return _this.close();
       });
-      self = this;
-      $(".audioPlayer .choice").unbind("click").click(function() {
-        switch ($(this).attr("type")) {
-          case "pause":
-            return self.leftKeyPressed();
-          case "back":
-            return self.close();
-        }
-      });
     }
+
+    AudioPlayer.prototype.handleButton = function(name) {
+      switch (name) {
+        case "pause":
+          return this.leftKeyPressed();
+        case "back":
+          return this.close();
+      }
+    };
 
     AudioPlayer.prototype.leftKeyPressed = function() {
       return this.audio.pause();
@@ -36,8 +34,7 @@
 
     AudioPlayer.prototype.close = function() {
       AudioPlayer.__super__.close.apply(this, arguments);
-      this.audio.pause();
-      return $(".audioPlayer .dialog").hide();
+      return this.audio.pause();
     };
 
     return AudioPlayer;

@@ -5,14 +5,26 @@
 
   ModalDialog = (function() {
 
-    function ModalDialog(callback) {
+    function ModalDialog(selector, callback) {
+      var self;
       this.callback = callback;
       this.handleKey = __bind(this.handleKey, this);
 
       KeyboardInput.get().pushModalKeyHandler(this);
+      this.dialogElement = $(selector);
+      this.dialogElement.show();
+      self = this;
+      this.dialogElement.find('.choice').unbind('click').click(function() {
+        return self.handleButton($(this).attr("type"));
+      });
     }
 
+    ModalDialog.prototype.handleButton = function(name) {
+      return alert(name);
+    };
+
     ModalDialog.prototype.close = function() {
+      this.dialogElement.hide();
       KeyboardInput.get().popModalKeyHandler();
       if (this.callback != null) {
         return this.callback(null);

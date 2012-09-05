@@ -1,8 +1,18 @@
 class ModalDialog
-    constructor: (@callback)->
+    constructor: (selector, @callback)->
         KeyboardInput.get().pushModalKeyHandler this
         
+        @dialogElement = $ selector
+        @dialogElement.show()
+        self = this
+        @dialogElement.find('.choice').unbind('click').click ->
+            self.handleButton $(this).attr "type"
+
+    handleButton: (name) ->
+        alert name
+        
     close: ->
+        @dialogElement.hide()
         KeyboardInput.get().popModalKeyHandler()
         @callback(null) if @callback?
         

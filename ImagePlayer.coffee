@@ -1,20 +1,14 @@
 class ImagePlayer extends ModalDialog
 
     constructor: (dataURI, cb) ->
-        super cb
-        @img = $(".imagePlayer img")[0]
-        $(".imagePlayer .dialog").show()
+        super '.imagePlayer .dialog', cb
+        @img = $('.imagePlayer img')[0]
         $(@img).attr "src", dataURI
         
-        self = this
-        $(".imagePlayer .choice").unbind("click").click ->
-            switch $(this).attr "type"
-                when "back"
-                    self.close()
-    
-    close: ->
-        super
-        $(".imagePlayer .dialog").hide()
-        
+    handleButton: (name) ->
+        switch name
+            when "back"
+                self.close()
+            
 window.ImagePlayer = ImagePlayer
     

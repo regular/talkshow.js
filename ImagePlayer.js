@@ -9,23 +9,16 @@
     __extends(ImagePlayer, _super);
 
     function ImagePlayer(dataURI, cb) {
-      var self;
-      ImagePlayer.__super__.constructor.call(this, cb);
-      this.img = $(".imagePlayer img")[0];
-      $(".imagePlayer .dialog").show();
+      ImagePlayer.__super__.constructor.call(this, '.imagePlayer .dialog', cb);
+      this.img = $('.imagePlayer img')[0];
       $(this.img).attr("src", dataURI);
-      self = this;
-      $(".imagePlayer .choice").unbind("click").click(function() {
-        switch ($(this).attr("type")) {
-          case "back":
-            return self.close();
-        }
-      });
     }
 
-    ImagePlayer.prototype.close = function() {
-      ImagePlayer.__super__.close.apply(this, arguments);
-      return $(".imagePlayer .dialog").hide();
+    ImagePlayer.prototype.handleButton = function(name) {
+      switch (name) {
+        case "back":
+          return self.close();
+      }
     };
 
     return ImagePlayer;
