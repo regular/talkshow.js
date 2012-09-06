@@ -4,7 +4,7 @@ class SplitDataSource
     enterCell: (x, y, cb) ->
         (if x<@splitColumn then @ds1 else @ds2).enterCell x,y,cb
         
-    cellForPosition: (x, y) ->
-        (if x<@splitColumn then @ds1 else @ds2).cellForPosition x,y
+    cellForPosition: (x,y, cb) ->
+        (if x<@splitColumn then @ds1 else @ds2).cellForPosition x,y, cb
         
 window.SplitDataSource = SplitDataSource

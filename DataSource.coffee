@@ -101,19 +101,24 @@ class DataSource
         color = "rgba(#{color})"
         return color
     
-    cellData: (x,y) ->
-        ret = {}
+    cellData: (x,y, cb) ->
+        ensureLabel = (o, level, nodeId) ->
+            if not ("label" of o)
+                o.label = "level#{level}(##{nodeId}): #{x}/#{y}"
+        
+        obj = {}
         key = "#{x}/#{y}"
         if key of @cells
             id = @cells[key]
-            obj = JSON.parse localStorage.getItem "cell_#{id}"
-            ret = obj if obj?
-            ret.id = id
-        
-        if not ("label" of ret)
-            ret.label = "level#{@level}(##{@nodeId}): #{x}/#{y}"
-
-        return ret
+            @storage.get "cell_#{id}", (err, obj) =>
+                if err? then return cb err
+                obj ?= {}
+                obj.id = id
+                ensureLabel obj, @level, @nodeId
+                cb null, obj
+        else
+            ensureLabel obj, @level, @nodeId
+            cb null, obj
         
     enterCell: (x, y, cb) ->
         console.log "entering cell #{x}/#{y}"
@@ -127,32 +132,34 @@ class DataSource
         console.log "nodeId", childNodeId
         
         if childNodeId is null
-            data = @cellData x,y
-            if data.sound
-                audioPlayer = new AudioPlayer(data.sound)
-                return
-
-            if data.photo
-                imagePlayer = new ImagePlayer(data.photo)
-                return
+            @cellData x,y, (err, data) =>
+                if err? then return cb err
+                if data.sound
+                    audioPlayer = new AudioPlayer(data.sound)
+                    cb null
+                else if data.photo
+                    imagePlayer = new ImagePlayer(data.photo)
+                    cb mull
             
         if @delegate?
             @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
         else
             cb null
     
-    cellForPosition: (x, y) ->
-        data = @cellData x,y
-        color = @colorForCell x,y
+    cellForPosition: (x, y, cb) ->
+        @cellData x,y, (err, data) =>
+            if err? then return cb err
             
-        cell = @factory.makeCell data, color
+            color = @colorForCell x,y
             
-        if "id" of data
-            cell.attr "id", data.id
+            cell = @factory.makeCell data, color
+            
+            if "id" of data
+                cell.attr "id", data.id
         
-        cell.click () =>
-            @enterCell x,y, =>
+            cell.click () =>
+                @enterCell x,y, =>
                 
-        return cell
+            cb null, cell
 
 window.DataSource = DataSource

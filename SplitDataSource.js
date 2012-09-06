@@ -14,8 +14,8 @@
       return (x < this.splitColumn ? this.ds1 : this.ds2).enterCell(x, y, cb);
     };
 
-    SplitDataSource.prototype.cellForPosition = function(x, y) {
-      return (x < this.splitColumn ? this.ds1 : this.ds2).cellForPosition(x, y);
+    SplitDataSource.prototype.cellForPosition = function(x, y, cb) {
+      return (x < this.splitColumn ? this.ds1 : this.ds2).cellForPosition(x, y, cb);
     };
 
     return SplitDataSource;

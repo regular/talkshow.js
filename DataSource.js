@@ -160,26 +160,38 @@
       return color;
     };
 
-    DataSource.prototype.cellData = function(x, y) {
-      var id, key, obj, ret;
-      ret = {};
+    DataSource.prototype.cellData = function(x, y, cb) {
+      var ensureLabel, id, key, obj,
+        _this = this;
+      ensureLabel = function(o, level, nodeId) {
+        if (!("label" in o)) {
+          return o.label = "level" + level + "(#" + nodeId + "): " + x + "/" + y;
+        }
+      };
+      obj = {};
       key = "" + x + "/" + y;
       if (key in this.cells) {
         id = this.cells[key];
-        obj = JSON.parse(localStorage.getItem("cell_" + id));
-        if (obj != null) {
-          ret = obj;
-        }
-        ret.id = id;
+        return this.storage.get("cell_" + id, function(err, obj) {
+          if (err != null) {
+            return cb(err);
+          }
+          if (obj == null) {
+            obj = {};
+          }
+          obj.id = id;
+          ensureLabel(obj, _this.level, _this.nodeId);
+          return cb(null, obj);
+        });
+      } else {
+        ensureLabel(obj, this.level, this.nodeId);
+        return cb(null, obj);
       }
-      if (!("label" in ret)) {
-        ret.label = "level" + this.level + "(#" + this.nodeId + "): " + x + "/" + y;
-      }
-      return ret;
     };
 
     DataSource.prototype.enterCell = function(x, y, cb) {
-      var audioPlayer, childNodeId, data, imagePlayer, key;
+      var childNodeId, key,
+        _this = this;
       console.log("entering cell " + x + "/" + y);
       childNodeId = null;
       if (this.children) {
@@ -190,15 +202,19 @@
       }
       console.log("nodeId", childNodeId);
       if (childNodeId === null) {
-        data = this.cellData(x, y);
-        if (data.sound) {
-          audioPlayer = new AudioPlayer(data.sound);
-          return;
-        }
-        if (data.photo) {
-          imagePlayer = new ImagePlayer(data.photo);
-          return;
-        }
+        this.cellData(x, y, function(err, data) {
+          var audioPlayer, imagePlayer;
+          if (err != null) {
+            return cb(err);
+          }
+          if (data.sound) {
+            audioPlayer = new AudioPlayer(data.sound);
+            return cb(null);
+          } else if (data.photo) {
+            imagePlayer = new ImagePlayer(data.photo);
+            return cb(mull);
+          }
+        });
       }
       if (this.delegate != null) {
         return this.delegate.enteredCell(this, {
@@ -210,19 +226,23 @@
       }
     };
 
-    DataSource.prototype.cellForPosition = function(x, y) {
-      var cell, color, data,
-        _this = this;
-      data = this.cellData(x, y);
-      color = this.colorForCell(x, y);
-      cell = this.factory.makeCell(data, color);
-      if ("id" in data) {
-        cell.attr("id", data.id);
-      }
-      cell.click(function() {
-        return _this.enterCell(x, y, function() {});
+    DataSource.prototype.cellForPosition = function(x, y, cb) {
+      var _this = this;
+      return this.cellData(x, y, function(err, data) {
+        var cell, color;
+        if (err != null) {
+          return cb(err);
+        }
+        color = _this.colorForCell(x, y);
+        cell = _this.factory.makeCell(data, color);
+        if ("id" in data) {
+          cell.attr("id", data.id);
+        }
+        cell.click(function() {
+          return _this.enterCell(x, y, function() {});
+        });
+        return cb(null, cell);
       });
-      return cell;
     };
 
     return DataSource;

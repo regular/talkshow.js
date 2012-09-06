@@ -12,7 +12,12 @@ class Grid
         for y in [0...@rows]
             tr = $("<tr>")
             for x in [0...@cols]
-                tr.append dataSource.cellForPosition(x,y)
+                td = $ "<td>"
+                tr.append td
+                do (td) ->
+                    dataSource.cellForPosition x,y, (err, newTd) =>
+                        if not err?
+                            td.replaceWith newTd
             
             $("#grid table").append tr
 

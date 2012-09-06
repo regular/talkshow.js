@@ -15,14 +15,24 @@
     }
 
     Grid.prototype.reloadFromDataSource = function(dataSource) {
-      var tr, x, y, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _results;
+      var td, tr, x, y, _fn, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _results;
       console.log("Loading data from source");
       this.dataSource = dataSource;
       $("#grid").html("<table>");
       for (y = _i = 0, _ref = this.rows; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
         tr = $("<tr>");
+        _fn = function(td) {
+          var _this = this;
+          return dataSource.cellForPosition(x, y, function(err, newTd) {
+            if (!(err != null)) {
+              return td.replaceWith(newTd);
+            }
+          });
+        };
         for (x = _j = 0, _ref1 = this.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
-          tr.append(dataSource.cellForPosition(x, y));
+          td = $("<td>");
+          tr.append(td);
+          _fn(td);
         }
         $("#grid table").append(tr);
       }
