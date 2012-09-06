@@ -63,8 +63,7 @@
         if (err != null) {
           return cb(err);
         }
-        localStorage.setItem("node_" + _this.nodeId + "_children", JSON.stringify(_this.children));
-        return cb(null);
+        return _this.storage.save("node_" + _this.nodeId + "_children", _this.children, cb);
       });
     };
 
@@ -106,8 +105,7 @@
         if (err != null) {
           return cb(err);
         }
-        localStorage.setItem("node_" + _this.nodeId + "_cells", JSON.stringify(_this.cells));
-        return cb(null);
+        return _this.storage.save("node_" + _this.nodeId + "_cells", _this.cells, cb);
       });
     };
 

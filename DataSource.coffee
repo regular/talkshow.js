@@ -39,8 +39,7 @@ class DataSource
         @children["#{pos.x}/#{pos.y}"] = id
         @ensureNodeId (err) =>
             if err? then return cb err
-            localStorage.setItem("node_#{@nodeId}_children", JSON.stringify @children )
-            cb null
+            @storage.save "node_#{@nodeId}_children", @children, cb
 
     ensureNodeId: (cb) ->
         if not @nodeId?
@@ -65,8 +64,7 @@ class DataSource
         @ensureNodeId (err) =>
             if not @nodeId? then alert "No nodeId after ensureNodeId"
             if err? then return cb err
-            localStorage.setItem "node_#{@nodeId}_cells", JSON.stringify @cells
-            cb null
+            @storage.save "node_#{@nodeId}_cells", @cells, cb
     
     ensureCellId: (cell, cb) ->
         console.log "ensureCellId"
