@@ -4,7 +4,7 @@
 
   DataSource = (function() {
 
-    function DataSource(options, cb) {
+    function DataSource(options) {
       var cellDelegate, _ref, _ref1, _ref2,
         _this = this;
       this.grid = options.grid, this.level = options.level, this.nodeId = options.nodeId, this.parent = options.parent, this.position = options.position, this.delegate = options.delegate;
@@ -18,57 +18,101 @@
         this.children = (_ref2 = JSON.parse(localStorage.getItem("node_" + this.nodeId + "_children"))) != null ? _ref2 : {};
       }
       cellDelegate = {
-        labelTextChanged: function(cell, text) {
+        labelTextChanged: function(cell, text, cb) {
           console.log("labelTextChanged", cell, text);
-          return _this.save(cell, "label", text);
+          return _this.save(cell, "label", text, cb);
         },
-        contentChanged: function(cell, aspect, dataUri) {
-          return _this.save(cell, aspect, dataUri);
+        contentChanged: function(cell, aspect, dataUri, cb) {
+          return _this.save(cell, aspect, dataUri, cb);
         },
-        cellChanged: function(cell) {
-          return _this.save(cell, "cell");
+        cellChanged: function(cell, cb) {
+          return _this.save(cell, "cell", cb);
         }
       };
       this.factory = new CellFactory(cellDelegate);
     }
 
-    DataSource.prototype.setChild = function(pos, id) {
+    DataSource.prototype.setChild = function(pos, id, cb) {
+      var _this = this;
       this.children["" + pos.x + "/" + pos.y] = id;
-      this.ensureNodeId();
-      return localStorage.setItem("node_" + this.nodeId + "_children", JSON.stringify(this.children));
+      return this.ensureNodeId(function(err) {
+        if (err != null) {
+          return cb(err);
+        }
+        localStorage.setItem("node_" + _this.nodeId + "_children", JSON.stringify(_this.children));
+        return cb(null);
+      });
     };
 
-    DataSource.prototype.ensureNodeId = function() {
+    DataSource.prototype.ensureNodeId = function(cb) {
+      var _this = this;
       if (!(this.nodeId != null)) {
-        this.nodeId = window.uniqueId();
-        if (this.parent != null) {
-          return this.parent.setChild(this.position, this.nodeId);
-        } else {
-          console.log("root nodeId is " + this.nodeId);
-          return localStorage.setItem("root", this.nodeId);
-        }
+        return window.uniqueId(function(err, id) {
+          if (err) {
+            return cb(err);
+          }
+          _this.nodeId = id;
+          if (_this.parent != null) {
+            return _this.parent.setChild(_this.position, id, cb);
+          } else {
+            console.log("root nodeId is " + _this.nodeId);
+            localStorage.setItem("root", _this.nodeId);
+            return cb(null);
+          }
+        });
+      } else {
+        return cb(null);
       }
     };
 
-    DataSource.prototype.save = function(cell, aspect, data) {
-      var id, obj, row, x, y;
-      if (aspect === "id") {
-        row = cell.closest("tr");
-        x = cell.index();
-        y = row.index();
-        id = cell.attr("id");
-        this.cells["" + x + "/" + y] = id;
-        console.log("cell " + x + "/" + y + " changed id: " + id);
-        this.ensureNodeId();
-        return localStorage.setItem("node_" + this.nodeId + "_cells", JSON.stringify(this.cells));
-      } else {
-        id = cell.attr("id");
-        if (!(id != null)) {
-          id = window.uniqueId();
-          cell.attr("id", id);
-          this.save(cell, "id");
+    DataSource.prototype.setCellId = function(cell, id, cb) {
+      var row, x, y,
+        _this = this;
+      row = cell.closest("tr");
+      x = cell.index();
+      y = row.index();
+      cell.attr("id", id);
+      this.cells["" + x + "/" + y] = id;
+      console.log("cell " + x + "/" + y + " changed id: " + id);
+      return this.ensureNodeId(function(err) {
+        if (!(_this.nodeId != null)) {
+          alert("No nodeId after ensureNodeId");
         }
-        console.log("saving " + id + " " + aspect);
+        if (err != null) {
+          return cb(err);
+        }
+        localStorage.setItem("node_" + _this.nodeId + "_cells", JSON.stringify(_this.cells));
+        return cb(null);
+      });
+    };
+
+    DataSource.prototype.ensureCellId = function(cell, cb) {
+      var id,
+        _this = this;
+      console.log("ensureCellId");
+      id = cell.attr("id");
+      if (id != null) {
+        return cb(null);
+      }
+      console.log("calling uniqueId");
+      return window.uniqueId(function(err, id) {
+        console.log("uniqueId returned " + err + ", " + id);
+        if (err != null) {
+          return cb(err);
+        }
+        return _this.setCellId(cell, id, cb);
+      });
+    };
+
+    DataSource.prototype.save = function(cell, aspect, data, cb) {
+      var _this = this;
+      return this.ensureCellId(cell, function(err) {
+        var id, obj;
+        if (err != null) {
+          return cb(err);
+        }
+        id = cell.attr('id');
+        console.log("saving " + aspect + " of cell " + id);
         obj = localStorage.getItem("cell_" + id);
         if (obj === null) {
           obj = {};
@@ -78,8 +122,9 @@
         obj[aspect] = data;
         console.dir(obj);
         obj = JSON.stringify(obj);
-        return localStorage.setItem("cell_" + id, obj);
-      }
+        localStorage.setItem("cell_" + id, obj);
+        return cb(null);
+      });
     };
 
     DataSource.prototype.colorForCell = function(x, y) {

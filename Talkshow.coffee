@@ -1,40 +1,49 @@
+setupUIDGenerator = (storage, cb) ->
+    storage.get "currId", (err, doc) ->
+        currId = doc?.value or 0
+
+        window.uniqueId = (cb) ->
+            ret = currId
+            currId++
+            storage.save "currId", {value: currId}, (err) ->
+                cb err, ret
+        
+        cb err
+
+
 class Talkshow
     
-    constructor: ->
-        grid = new Grid 4, 2
-
-        @navigationController = new NavigationController grid
+    constructor: (cb) ->
+        @storage = new LocalStorage
         
-        window.uniqueId = do ->
-            currId = localStorage.getItem "currId"
-            currId ?= 0
-            
-            return ->
-                ret = currId
-                currId++
-                localStorage.setItem "currId", currId
-                return ret
+        setupUIDGenerator @storage, (err) =>
+            if err? then return cb "Failed to initialize UIDGenerator"
+        
+            grid = new Grid 4, 2
+            @navigationController = new NavigationController grid
 
-        rootNodeId = localStorage.getItem "root"
-        console.log "rootNodeId", rootNodeId
+            rootNodeId = localStorage.getItem "root"
+            console.log "rootNodeId", rootNodeId
 
-        myDataSource = new DataSource 
-            grid: grid
-            level: 1, 
-            nodeId: rootNodeId
-            delegate: this
+            myDataSource = new DataSource 
+                grid: grid
+                level: 1, 
+                nodeId: rootNodeId
+                delegate: this
 
-        @yesNoDataSource = new DataSource 
-            grid: grid,
-            level: 1
-            nodeId: "yes_no"
+            @yesNoDataSource = new DataSource 
+                grid: grid,
+                level: 1
+                nodeId: "yes_no"
     
-        splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+            splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
-        @navigationController.push splitDataSource
+            @navigationController.push splitDataSource
 
-        #scanner = Scanner(grid.positions(), tnis)
-        keyboardInput = KeyboardInput.get(this)
+            #scanner = Scanner(grid.positions(), tnis)
+            keyboardInput = KeyboardInput.get(this)
+            
+            cb null
 
     enterCell: (x,y) ->
         @navigationController.currentController().enterCell(x,y)

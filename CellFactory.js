@@ -26,15 +26,19 @@
             return false;
           }
         }).blur(function() {
-          var newText, _ref;
+          var newText, _ref,
+            _this = this;
           newText = $(this).val();
-          if ((_ref = self.delegate) != null) {
-            _ref.labelTextChanged(parent, newText);
-          }
-          $(this).remove();
-          label.html(newText);
-          label.show();
-          return KeyboardInput.get().popModalKeyHandler();
+          return (_ref = self.delegate) != null ? _ref.labelTextChanged(parent, newText, function(err) {
+            if (!(err != null)) {
+              $(_this).remove();
+              label.html(newText);
+              label.show();
+              return KeyboardInput.get().popModalKeyHandler();
+            } else {
+              return window.alert("Unable to save: " + err);
+            }
+          }) : void 0;
         }).insertAfter(label);
         parent.find('input').focus();
         label.hide();
@@ -78,12 +82,15 @@
             var _ref;
             if (aspect) {
               _this.setContent(cell, aspect, dataUri);
-              if ((_ref = _this.delegate) != null) {
-                _ref.contentChanged(cell, aspect, dataUri);
-              }
-              if (aspect === 'navigationSound') {
-                return cell.find('audio')[0].play();
-              }
+              return (_ref = _this.delegate) != null ? _ref.contentChanged(cell, aspect, dataUri, function(err) {
+                if (!(err != null)) {
+                  if (aspect === 'navigationSound') {
+                    return cell.find('audio')[0].play();
+                  }
+                } else {
+                  return window.alert("contentChanged failed: " + err);
+                }
+              }) : void 0;
             }
           });
         case 'image':
@@ -91,7 +98,11 @@
             var _ref;
             if (aspect) {
               _this.setContent(cell, aspect, dataUri);
-              return (_ref = _this.delegate) != null ? _ref.contentChanged(cell, aspect, dataUri) : void 0;
+              return (_ref = _this.delegate) != null ? _ref.contentChanged(cell, aspect, dataUri, function(err) {
+                if (err != null) {
+                  return window.alert("contentChanged failed: " + err);
+                }
+              }) : void 0;
             }
           });
       }
@@ -103,16 +114,20 @@
       self = this;
       makeIconBarItem = function(aspect, imageURL) {
         return $('<img>').hide().addClass(aspect).attr('src', imageURL).click(function() {
-          var cell, dialog;
+          var cell, dialog,
+            _this = this;
           cell = iconBar.closest("td");
           dialog = new ModalDialog(".delete ." + aspect + " .dialog", function(name) {
             var _ref;
             if (name === 'delete') {
-              if ((_ref = self.delegate) != null) {
-                _ref.contentChanged(cell, aspect, null);
-              }
-              cell = iconBar.closest('td');
-              return self.setContent(cell, aspect, null);
+              return (_ref = self.delegate) != null ? _ref.contentChanged(cell, aspect, null, function(err) {
+                if (!(err != null)) {
+                  cell = iconBar.closest('td');
+                  return self.setContent(cell, aspect, null);
+                } else {
+                  return alert("contentChanged failed: " + err);
+                }
+              }) : void 0;
             }
           });
           return false;

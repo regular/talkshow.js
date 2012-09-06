@@ -126,7 +126,11 @@ td.dragTarget {
   $(function() {
     var talkshow;
     $(".dialog").hide();
-    return talkshow = new Talkshow();
+    return talkshow = new Talkshow(function(err) {
+      if (err) {
+        return $("body").html("Failed to initialize Talkshow: " + err);
+      }
+    });
   });
 
 }).call(this);

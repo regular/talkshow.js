@@ -19,11 +19,14 @@ class CellFactory
                     return false
             ).blur( ()->
                 newText = $(this).val()
-                self.delegate?.labelTextChanged(parent, newText)
-                $(this).remove()
-                label.html(newText)
-                label.show()
-                KeyboardInput.get().popModalKeyHandler()
+                self.delegate?.labelTextChanged parent, newText, (err) =>
+                    if not err?
+                        $(this).remove()
+                        label.html(newText)
+                        label.show()
+                        KeyboardInput.get().popModalKeyHandler()
+                    else
+                        window.alert "Unable to save: #{err}"
             )
             .insertAfter(label)
             
@@ -63,16 +66,20 @@ class CellFactory
                 dialog = new ModalDialog ".soundDropped .dialog", (aspect) =>
                     if aspect
                         @setContent cell, aspect, dataUri
-                        @delegate?.contentChanged cell, aspect, dataUri
-                    
-                        if aspect is 'navigationSound'
-                            cell.find('audio')[0].play()
+                        @delegate?.contentChanged cell, aspect, dataUri, (err) =>
+                            if not err?
+                                if aspect is 'navigationSound'
+                                    cell.find('audio')[0].play()
+                            else
+                                window.alert "contentChanged failed: #{err}"
             
             when 'image'
                 dialog = new ModalDialog '.imageDropped .dialog', (aspect) =>
                     if aspect
                         @setContent cell, aspect, dataUri
-                        @delegate?.contentChanged cell, aspect, dataUri
+                        @delegate?.contentChanged cell, aspect, dataUri, (err) =>
+                            if err?
+                                window.alert "contentChanged failed: #{err}"
     
     makeIconBar: (data) ->
         iconBar = $('<div>').addClass 'iconbar'
@@ -85,11 +92,14 @@ class CellFactory
                 .attr('src', imageURL)
                 .click ->
                     cell = iconBar.closest "td"
-                    dialog = new ModalDialog ".delete .#{aspect} .dialog", (name) ->
+                    dialog = new ModalDialog ".delete .#{aspect} .dialog", (name) =>
                         if name is 'delete'
-                            self.delegate?.contentChanged cell, aspect, null
-                            cell = iconBar.closest 'td'
-                            self.setContent cell, aspect, null
+                            self.delegate?.contentChanged cell, aspect, null, (err) =>
+                                if not err?
+                                    cell = iconBar.closest 'td'
+                                    self.setContent cell, aspect, null
+                                else
+                                    alert "contentChanged failed: #{err}"
                             
                     return false
 

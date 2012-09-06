@@ -1,6 +1,6 @@
 class DataSource
 
-    constructor: (options, cb) ->
+    constructor: (options) ->
         {@grid, @level, @nodeId, @parent, @position, @delegate} = options
         
         @level ?= 1
@@ -10,63 +10,84 @@ class DataSource
         if @nodeId?
             @cells = JSON.parse(localStorage.getItem "node_#{@nodeId}_cells") ? {}
             @children = JSON.parse(localStorage.getItem "node_#{@nodeId}_children") ? {}
-            
+        
         cellDelegate =
-            labelTextChanged: (cell, text) =>
+            labelTextChanged: (cell, text, cb) =>
                 console.log  "labelTextChanged", cell, text
-                @save(cell, "label", text)
+                @save cell, "label", text, cb
             
-            contentChanged: (cell, aspect, dataUri) =>
-                @save(cell, aspect, dataUri);
+            contentChanged: (cell, aspect, dataUri, cb) =>
+                @save cell, aspect, dataUri, cb
 
-            cellChanged: (cell) =>
-                @save(cell, "cell")
+            cellChanged: (cell, cb) =>
+                @save cell, "cell", cb
 
         @factory = new CellFactory cellDelegate
 
-    setChild: (pos, id) ->
+    setChild: (pos, id, cb) ->
         @children["#{pos.x}/#{pos.y}"] = id
-        @ensureNodeId()
-        localStorage.setItem("node_#{@nodeId}_children", JSON.stringify @children )
+        @ensureNodeId (err) =>
+            if err? then return cb err
+            localStorage.setItem("node_#{@nodeId}_children", JSON.stringify @children )
+            cb null
 
-    ensureNodeId: () ->
+    ensureNodeId: (cb) ->
         if not @nodeId?
-            @nodeId = window.uniqueId()
-            if @parent?
-                @parent.setChild @position, @nodeId
-            else
-                console.log "root nodeId is #{@nodeId}" 
-                localStorage.setItem "root", @nodeId
-    
-    save: (cell, aspect, data) ->
-        if aspect is "id"
-            row = cell.closest("tr")
-            x = cell.index()
-            y = row.index()
-            id = cell.attr("id")
-            @cells["#{x}/#{y}"] = id
-            console.log "cell #{x}/#{y} changed id: #{id}"
-            @ensureNodeId()
-            localStorage.setItem "node_#{@nodeId}_cells", JSON.stringify @cells
+            window.uniqueId (err, id) =>
+                if err then return cb err
+                @nodeId = id
+                if @parent?
+                    @parent.setChild @position, id, cb
+                else
+                    console.log "root nodeId is #{@nodeId}" 
+                    localStorage.setItem "root", @nodeId
+                    cb null
         else
-            id = cell.attr "id"
-            if not id?
-                id = window.uniqueId()
-                cell.attr "id", id
-                @save cell, "id"
+            cb null
+    
+    setCellId: (cell, id, cb) ->
+        row = cell.closest("tr")
+        x = cell.index()
+        y = row.index()
+        cell.attr("id", id)
+        @cells["#{x}/#{y}"] = id
+        console.log "cell #{x}/#{y} changed id: #{id}"
+        @ensureNodeId (err) =>
+            if not @nodeId? then alert "No nodeId after ensureNodeId"
+            if err? then return cb err
+            localStorage.setItem "node_#{@nodeId}_cells", JSON.stringify @cells
+            cb null
+    
+    ensureCellId: (cell, cb) ->
+        console.log "ensureCellId"
+        id = cell.attr "id"
+        if id? then return cb null
+        console.log "calling uniqueId"
 
-            console.log "saving #{id} #{aspect}"
+        window.uniqueId (err, id) =>
+            console.log "uniqueId returned #{err}, #{id}"
+
+            if err? then return cb err
+            @setCellId cell, id, cb
+        
+    save: (cell, aspect, data, cb) ->
+        
+        @ensureCellId cell, (err) =>
+            if err? then return cb err
+            id = cell.attr 'id'
+            console.log "saving #{aspect} of cell #{id}"
             obj = localStorage.getItem "cell_#{id}"
             if obj is null
                 obj = {}
             else
                 obj = JSON.parse(obj)
-            
+        
             obj[aspect] = data
             console.dir obj 
             obj = JSON.stringify obj
             localStorage.setItem "cell_#{id}", obj
-    
+            cb null
+            
     colorForCell: (x, y) ->
         index = x+y*4 % 6 + 1
         color = index.toString(2)

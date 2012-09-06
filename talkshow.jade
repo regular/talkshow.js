@@ -213,5 +213,7 @@ html
 :coffeescript
     $ ->
         $(".dialog").hide()
-        talkshow = new Talkshow()
+        talkshow = new Talkshow (err) ->
+            if err
+                $("body").html "Failed to initialize Talkshow: #{err}"
     
