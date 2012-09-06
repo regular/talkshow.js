@@ -4,14 +4,10 @@
 
   DataSource = (function() {
 
-    function DataSource(grid, level, nodeId, parent, position) {
+    function DataSource(options, cb) {
       var cellDelegate, _ref, _ref1, _ref2,
         _this = this;
-      this.grid = grid;
-      this.level = level;
-      this.nodeId = nodeId;
-      this.parent = parent;
-      this.position = position;
+      this.grid = options.grid, this.level = options.level, this.nodeId = options.nodeId, this.parent = options.parent, this.position = options.position, this.delegate = options.delegate;
       if ((_ref = this.level) == null) {
         this.level = 1;
       }

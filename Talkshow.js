@@ -8,11 +8,33 @@
       var grid, keyboardInput, myDataSource, rootNodeId, splitDataSource;
       grid = new Grid(4, 2);
       this.navigationController = new NavigationController(grid);
+      window.uniqueId = (function() {
+        var currId;
+        currId = localStorage.getItem("currId");
+        if (currId == null) {
+          currId = 0;
+        }
+        return function() {
+          var ret;
+          ret = currId;
+          currId++;
+          localStorage.setItem("currId", currId);
+          return ret;
+        };
+      })();
       rootNodeId = localStorage.getItem("root");
       console.log("rootNodeId", rootNodeId);
-      myDataSource = new DataSource(grid, 1, rootNodeId);
-      myDataSource.delegate = this;
-      this.yesNoDataSource = new DataSource(grid, 1, "yes_no");
+      myDataSource = new DataSource({
+        grid: grid,
+        level: 1,
+        nodeId: rootNodeId,
+        delegate: this
+      });
+      this.yesNoDataSource = new DataSource({
+        grid: grid,
+        level: 1,
+        nodeId: "yes_no"
+      });
       splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
       this.navigationController.push(splitDataSource);
       keyboardInput = KeyboardInput.get(this);
@@ -31,8 +53,14 @@
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId) {
       var myDataSource, splitDataSource;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
-      myDataSource = new DataSource(this.grid, level, nodeId, dataSource, position);
-      myDataSource.delegate = this;
+      myDataSource = new DataSource({
+        grid: this.grid,
+        level: level,
+        nodeId: nodeId,
+        parent: dataSource,
+        position: position,
+        delegate: this
+      });
       splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
       return this.navigationController.push(splitDataSource);
     };

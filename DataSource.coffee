@@ -1,6 +1,8 @@
 class DataSource
 
-    constructor: (@grid, @level, @nodeId, @parent, @position) ->
+    constructor: (options, cb) ->
+        {@grid, @level, @nodeId, @parent, @position, @delegate} = options
+        
         @level ?= 1
         @cells = {}
         @children = {}

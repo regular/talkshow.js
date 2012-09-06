@@ -4,19 +4,31 @@ class Talkshow
         grid = new Grid 4, 2
 
         @navigationController = new NavigationController grid
+        
+        window.uniqueId = do ->
+            currId = localStorage.getItem "currId"
+            currId ?= 0
+            
+            return ->
+                ret = currId
+                currId++
+                localStorage.setItem "currId", currId
+                return ret
 
         rootNodeId = localStorage.getItem "root"
         console.log "rootNodeId", rootNodeId
-        
-        myDataSource = new DataSource grid, 
-            1, # level
-            rootNodeId
-        myDataSource.delegate = this
 
-        @yesNoDataSource = new DataSource grid, 
-            1, # level
-            "yes_no"
-            
+        myDataSource = new DataSource 
+            grid: grid
+            level: 1, 
+            nodeId: rootNodeId
+            delegate: this
+
+        @yesNoDataSource = new DataSource 
+            grid: grid,
+            level: 1
+            nodeId: "yes_no"
+    
         splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
         @navigationController.push splitDataSource
@@ -33,12 +45,13 @@ class Talkshow
     
     enteredCell: (dataSource, position, level, nodeId) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
-        myDataSource = new DataSource @grid, 
-            level,
-            nodeId,
-            dataSource,
-            position
-        myDataSource.delegate = this
+        myDataSource = new DataSource 
+            grid: @grid
+            level: level
+            nodeId: nodeId
+            parent: dataSource,
+            position: position
+            delegate: this
         
         splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
         

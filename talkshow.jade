@@ -3,6 +3,7 @@ html
     head
         meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
         script(src='jquery.min.js')
+        script(src='async.min.js')
         script(src='underscore.js')
         script(src='Grid.js')
         script(src='Scanner.js')
@@ -16,6 +17,7 @@ html
         script(src='ModalDialog.js')
         script(src='AudioPlayer.js')
         script(src='ImagePlayer.js')
+        script(src='Storage.js')
         script(src='Talkshow.js')
         
     body
@@ -210,15 +212,6 @@ html
 
 :coffeescript
     $ ->
-        window.uniqueId = do ->
-            currId = localStorage.getItem("currId")
-            if not currId? then currId = 0
-            return () ->
-                ret = currId
-                currId++
-                localStorage.setItem("currId", currId)
-                return ret
-
         $(".dialog").hide()
         talkshow = new Talkshow()
     
