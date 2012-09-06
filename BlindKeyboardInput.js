@@ -133,16 +133,16 @@
     };
 
     _BlindKeyboardInput.prototype.enter = function() {
-      var focusPos, _ref;
+      var focusPos,
+        _this = this;
       this.stopTimer();
       focusPos = this.focusPosition();
       if (focusPos != null) {
         this.startTimer();
-        if ((_ref = this.delegate) != null) {
-          _ref.enterCell(focusPos.left, focusPos.top);
-        }
-        this.setFocusPosition(1, 0);
-        return this.playNavigationSound();
+        return this.delegate.enterCell(focusPos.left, focusPos.top, function(err) {
+          _this.setFocusPosition(1, 0);
+          return _this.playNavigationSound();
+        });
       }
     };
 

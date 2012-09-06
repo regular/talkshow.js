@@ -4,20 +4,16 @@
 
   DataSource = (function() {
 
-    function DataSource(options) {
-      var cellDelegate, _ref, _ref1, _ref2,
+    function DataSource(args, cb) {
+      var _ref,
         _this = this;
-      this.grid = options.grid, this.level = options.level, this.nodeId = options.nodeId, this.parent = options.parent, this.position = options.position, this.delegate = options.delegate, this.storage = options.storage;
+      this.grid = args.grid, this.level = args.level, this.nodeId = args.nodeId, this.parent = args.parent, this.position = args.position, this.delegate = args.delegate, this.storage = args.storage;
       if ((_ref = this.level) == null) {
         this.level = 1;
       }
       this.cells = {};
       this.children = {};
-      if (this.nodeId != null) {
-        this.cells = (_ref1 = JSON.parse(localStorage.getItem("node_" + this.nodeId + "_cells"))) != null ? _ref1 : {};
-        this.children = (_ref2 = JSON.parse(localStorage.getItem("node_" + this.nodeId + "_children"))) != null ? _ref2 : {};
-      }
-      cellDelegate = {
+      this.factory = new CellFactory({
         labelTextChanged: function(cell, text, cb) {
           console.log("labelTextChanged", cell, text);
           return _this.save(cell, "label", text, cb);
@@ -28,9 +24,37 @@
         cellChanged: function(cell, cb) {
           return _this.save(cell, "cell", cb);
         }
-      };
-      this.factory = new CellFactory(cellDelegate);
+      });
+      this.initialize(cb);
     }
+
+    DataSource.prototype.initialize = function(cb) {
+      var _this = this;
+      if (this.nodeId != null) {
+        return async.parallel([
+          function(cb) {
+            return _this.storage.get("node_" + _this.nodeId + "_cells", cb);
+          }, function(cb) {
+            return _this.storage.get("node_" + _this.nodeId + "_children", cb);
+          }
+        ], function(err, results) {
+          var _ref, _ref1;
+          if (err != null) {
+            return cb(err);
+          }
+          _this.cells = results[0], _this.children = results[1];
+          if ((_ref = _this.cells) == null) {
+            _this.cells = {};
+          }
+          if ((_ref1 = _this.children) == null) {
+            _this.children = {};
+          }
+          return cb(null, _this);
+        });
+      } else {
+        return cb(null, this);
+      }
+    };
 
     DataSource.prototype.setChild = function(pos, id, cb) {
       var _this = this;
@@ -156,14 +180,8 @@
       return ret;
     };
 
-    DataSource.prototype.labelForCell = function(x, y) {
-      var obj;
-      obj = cellData(x, y);
-      return obj.label;
-    };
-
-    DataSource.prototype.enterCell = function(x, y) {
-      var audioPlayer, childNodeId, data, imagePlayer, key, _ref;
+    DataSource.prototype.enterCell = function(x, y, cb) {
+      var audioPlayer, childNodeId, data, imagePlayer, key;
       console.log("entering cell " + x + "/" + y);
       childNodeId = null;
       if (this.children) {
@@ -184,10 +202,14 @@
           return;
         }
       }
-      return (_ref = this.delegate) != null ? _ref.enteredCell(this, {
-        x: x,
-        y: y
-      }, this.level + 1, childNodeId) : void 0;
+      if (this.delegate != null) {
+        return this.delegate.enteredCell(this, {
+          x: x,
+          y: y
+        }, this.level + 1, childNodeId, cb);
+      } else {
+        return cb(null);
+      }
     };
 
     DataSource.prototype.cellForPosition = function(x, y) {
@@ -200,7 +222,7 @@
         cell.attr("id", data.id);
       }
       cell.click(function() {
-        return _this.enterCell(x, y);
+        return _this.enterCell(x, y, function() {});
       });
       return cell;
     };

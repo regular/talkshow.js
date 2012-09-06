@@ -23,8 +23,11 @@
   Talkshow = (function() {
 
     function Talkshow(cb) {
-      var _this = this;
+      var grid,
+        _this = this;
       this.storage = new LocalStorage;
+      grid = new Grid(4, 2);
+      this.navigationController = new NavigationController(grid);
       async.parallel([
         function(cb) {
           return setupUIDGenerator(_this.storage, function(err) {
@@ -37,37 +40,46 @@
           return _this.storage.get("root", cb);
         }
       ], function(err, _arg) {
-        var grid, ignored, keyboardInput, myDataSource, rootDoc, rootNodeId, splitDataSource;
+        var ignored, rootDoc, rootNodeId;
         ignored = _arg[0], rootDoc = _arg[1];
         if (err != null) {
           return cb(err);
         }
         rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
         console.log("rootNodeId", rootNodeId);
-        grid = new Grid(4, 2);
-        _this.navigationController = new NavigationController(grid);
-        myDataSource = new DataSource({
-          grid: grid,
-          level: 1,
-          nodeId: rootNodeId,
-          delegate: _this,
-          storage: _this.storage
+        return async.parallel([
+          function(cb) {
+            return new DataSource({
+              grid: grid,
+              level: 1,
+              nodeId: rootNodeId,
+              delegate: _this,
+              storage: _this.storage
+            }, cb);
+          }, function(cb) {
+            return new DataSource({
+              grid: grid,
+              level: 1,
+              nodeId: "yes_no",
+              storage: _this.storage
+            }, cb);
+          }
+        ], function(err, results) {
+          var keyboardInput, myDataSource, splitDataSource;
+          if (err != null) {
+            return cb(err);
+          }
+          myDataSource = results[0], _this.yesNoDataSource = results[1];
+          splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
+          _this.navigationController.push(splitDataSource);
+          keyboardInput = KeyboardInput.get(_this);
+          return cb(null, _this);
         });
-        _this.yesNoDataSource = new DataSource({
-          grid: grid,
-          level: 1,
-          nodeId: "yes_no",
-          storage: _this.storage
-        });
-        splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-        _this.navigationController.push(splitDataSource);
-        keyboardInput = KeyboardInput.get(_this);
-        return cb(null);
       });
     }
 
-    Talkshow.prototype.enterCell = function(x, y) {
-      return this.navigationController.currentController().enterCell(x, y);
+    Talkshow.prototype.enterCell = function(x, y, cb) {
+      return this.navigationController.currentController().enterCell(x, y, cb);
     };
 
     Talkshow.prototype.pop = function() {
@@ -76,10 +88,10 @@
       }
     };
 
-    Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId) {
-      var myDataSource, splitDataSource;
+    Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cb) {
+      var _this = this;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
-      myDataSource = new DataSource({
+      return new DataSource({
         grid: this.grid,
         level: level,
         nodeId: nodeId,
@@ -87,9 +99,15 @@
         position: position,
         delegate: this,
         storage: this.storage
+      }, function(err, myDataSource) {
+        var splitDataSource;
+        if (err != null) {
+          return cb(err);
+        }
+        splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
+        _this.navigationController.push(splitDataSource);
+        return cb(null);
       });
-      splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
-      return this.navigationController.push(splitDataSource);
     };
 
     return Talkshow;

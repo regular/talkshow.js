@@ -68,7 +68,7 @@ class KeyboardInput
     enter: () ->
         focusPos = @focusPosition()
         if focusPos?
-            @delegate.enterCell focusPos.left, focusPos.top
+            @delegate.enterCell focusPos.left, focusPos.top, =>
 
     focusPosition: () ->
         if $(".keyboardFocus").length == 1

@@ -74,10 +74,11 @@
     };
 
     KeyboardInput.prototype.enter = function() {
-      var focusPos;
+      var focusPos,
+        _this = this;
       focusPos = this.focusPosition();
       if (focusPos != null) {
-        return this.delegate.enterCell(focusPos.left, focusPos.top);
+        return this.delegate.enterCell(focusPos.left, focusPos.top, function() {});
       }
     };
 

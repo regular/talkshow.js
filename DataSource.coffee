@@ -1,28 +1,39 @@
 class DataSource
 
-    constructor: (options) ->
-        {@grid, @level, @nodeId, @parent, @position, @delegate, @storage} = options
+    constructor: (args, cb) ->
+        {@grid, @level, @nodeId, @parent, @position, @delegate, @storage} = args
         
         @level ?= 1
         @cells = {}
         @children = {}
-    
-        if @nodeId?
-            @cells = JSON.parse(localStorage.getItem "node_#{@nodeId}_cells") ? {}
-            @children = JSON.parse(localStorage.getItem "node_#{@nodeId}_children") ? {}
-        
-        cellDelegate =
+
+        @factory = new CellFactory
             labelTextChanged: (cell, text, cb) =>
                 console.log  "labelTextChanged", cell, text
                 @save cell, "label", text, cb
-            
+        
             contentChanged: (cell, aspect, dataUri, cb) =>
                 @save cell, aspect, dataUri, cb
 
             cellChanged: (cell, cb) =>
                 @save cell, "cell", cb
 
-        @factory = new CellFactory cellDelegate
+        @initialize cb
+            
+    initialize: (cb) ->
+        if @nodeId?
+            async.parallel [
+                (cb) => @storage.get "node_#{@nodeId}_cells", cb
+                (cb) => @storage.get "node_#{@nodeId}_children", cb
+            ], (err, results) =>
+                if err? then return cb err
+                [@cells, @children] = results
+                @cells ?= {}
+                @children ?= {}
+                cb null, this
+        else
+            cb null, this
+        
 
     setChild: (pos, id, cb) ->
         @children["#{pos.x}/#{pos.y}"] = id
@@ -105,12 +116,8 @@ class DataSource
             ret.label = "level#{@level}(##{@nodeId}): #{x}/#{y}"
 
         return ret
-    
-    labelForCell: (x, y) ->
-        obj = cellData x,y 
-        return obj.label
-    
-    enterCell: (x, y) ->
+        
+    enterCell: (x, y, cb) ->
         console.log "entering cell #{x}/#{y}"
         childNodeId = null
         
@@ -131,11 +138,12 @@ class DataSource
                 imagePlayer = new ImagePlayer(data.photo)
                 return
             
-        
-        @delegate?.enteredCell this, {x:x,y:y}, @level + 1, childNodeId
+        if @delegate?
+            @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
+        else
+            cb null
     
     cellForPosition: (x, y) ->
-        #label = labelForCell x,y
         data = @cellData x,y
         color = @colorForCell x,y
             
@@ -145,8 +153,8 @@ class DataSource
             cell.attr "id", data.id
         
         cell.click () =>
-            @enterCell x,y
-        
+            @enterCell x,y, =>
+                
         return cell
 
 window.DataSource = DataSource

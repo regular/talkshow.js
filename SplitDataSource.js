@@ -10,8 +10,8 @@
       this.splitColumn = splitColumn;
     }
 
-    SplitDataSource.prototype.enterCell = function(x, y) {
-      return (x < this.splitColumn ? this.ds1 : this.ds2).enterCell(x, y);
+    SplitDataSource.prototype.enterCell = function(x, y, cb) {
+      return (x < this.splitColumn ? this.ds1 : this.ds2).enterCell(x, y, cb);
     };
 
     SplitDataSource.prototype.cellForPosition = function(x, y) {

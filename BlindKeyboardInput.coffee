@@ -114,9 +114,9 @@ class _BlindKeyboardInput
         focusPos = @focusPosition()
         if focusPos?
             @startTimer()
-            @delegate?.enterCell focusPos.left, focusPos.top
-            @setFocusPosition 1 ,0
-            @playNavigationSound()
+            @delegate.enterCell focusPos.left, focusPos.top, (err) =>
+                @setFocusPosition 1 ,0
+                @playNavigationSound()
             
     pop: ->
         @stopTimer()
