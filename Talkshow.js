@@ -25,14 +25,14 @@
     function Talkshow(cb) {
       var grid,
         _this = this;
-      this.storage = new LocalStorage;
+      this.storage = new CouchStorage("http://localhost:5984", "talkshow");
       grid = new Grid(4, 2);
       this.navigationController = new NavigationController(grid);
       async.parallel([
         function(cb) {
           return setupUIDGenerator(_this.storage, function(err) {
             if (err != null) {
-              return cb("Failed to initialize UIDGenerator");
+              return cb("Failed to initialize UIDGenerator " + err);
             }
             return cb(null, null);
           });

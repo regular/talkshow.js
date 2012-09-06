@@ -29,4 +29,33 @@ class LocalStorage extends Storage
             cb null
         , 10
 
+class CouchStorage extends Storage
+    constructor: (serverUrl, @dbname)->
+        $.couch.urlPrefix = serverUrl
+        
+    get: (id, cb) ->
+        $.couch.db(@dbname).openDoc id,
+            success: (data) ->
+                cb null, data
+            error: (status) ->
+                if status is 404 or status is '404'
+                    cb null, null
+                else
+                    cb status
+        
+        
+    save: (id, doc, cb) ->
+        @get id, (err, data) =>
+            doc._rev = data._rev if data?._rev
+            doc._id = id
+            $.couch.db(@dbname).saveDoc doc,
+                success: (data) ->
+                    cb null, data
+                error: (status) ->
+                    cb status
+
+
+
+
 window.LocalStorage = LocalStorage
+window.CouchStorage = CouchStorage

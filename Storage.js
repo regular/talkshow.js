@@ -9,7 +9,7 @@
 
 
 (function() {
-  var LocalStorage, Storage,
+  var CouchStorage, LocalStorage, Storage,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -60,6 +60,54 @@
 
   })(Storage);
 
+  CouchStorage = (function(_super) {
+
+    __extends(CouchStorage, _super);
+
+    function CouchStorage(serverUrl, dbname) {
+      this.dbname = dbname;
+      $.couch.urlPrefix = serverUrl;
+    }
+
+    CouchStorage.prototype.get = function(id, cb) {
+      return $.couch.db(this.dbname).openDoc(id, {
+        success: function(data) {
+          return cb(null, data);
+        },
+        error: function(status) {
+          if (status === 404 || status === '404') {
+            return cb(null, null);
+          } else {
+            return cb(status);
+          }
+        }
+      });
+    };
+
+    CouchStorage.prototype.save = function(id, doc, cb) {
+      var _this = this;
+      return this.get(id, function(err, data) {
+        if (data != null ? data._rev : void 0) {
+          doc._rev = data._rev;
+        }
+        doc._id = id;
+        return $.couch.db(_this.dbname).saveDoc(doc, {
+          success: function(data) {
+            return cb(null, data);
+          },
+          error: function(status) {
+            return cb(status);
+          }
+        });
+      });
+    };
+
+    return CouchStorage;
+
+  })(Storage);
+
   window.LocalStorage = LocalStorage;
+
+  window.CouchStorage = CouchStorage;
 
 }).call(this);

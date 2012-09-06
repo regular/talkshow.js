@@ -14,14 +14,16 @@ setupUIDGenerator = (storage, cb) ->
 class Talkshow
     
     constructor: (cb) ->
-        @storage = new LocalStorage
+        #@storage = new LocalStorage
+        @storage = new CouchStorage "http://localhost:5984", "talkshow"
+        
         grid = new Grid 4, 2
         @navigationController = new NavigationController grid
         
         async.parallel [
             (cb) =>
                 setupUIDGenerator @storage, (err) =>
-                    if err? then return cb "Failed to initialize UIDGenerator"
+                    if err? then return cb "Failed to initialize UIDGenerator #{err}"
                     cb null, null
             (cb) =>
                 @storage.get "root", cb
