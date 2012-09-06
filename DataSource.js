@@ -108,23 +108,22 @@
     DataSource.prototype.save = function(cell, aspect, data, cb) {
       var _this = this;
       return this.ensureCellId(cell, function(err) {
-        var id, obj;
+        var id;
         if (err != null) {
           return cb(err);
         }
         id = cell.attr('id');
         console.log("saving " + aspect + " of cell " + id);
-        obj = localStorage.getItem("cell_" + id);
-        if (obj === null) {
-          obj = {};
-        } else {
-          obj = JSON.parse(obj);
-        }
-        obj[aspect] = data;
-        console.dir(obj);
-        obj = JSON.stringify(obj);
-        localStorage.setItem("cell_" + id, obj);
-        return cb(null);
+        return _this.storage.get("cell_" + id, function(err, obj) {
+          if (err != null) {
+            return cb(err);
+          }
+          if (obj === null) {
+            obj = {};
+          }
+          obj[aspect] = data;
+          return _this.storage.save("cell_" + id, obj, cb);
+        });
       });
     };
 

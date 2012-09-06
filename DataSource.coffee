@@ -75,17 +75,13 @@ class DataSource
             if err? then return cb err
             id = cell.attr 'id'
             console.log "saving #{aspect} of cell #{id}"
-            obj = localStorage.getItem "cell_#{id}"
-            if obj is null
-                obj = {}
-            else
-                obj = JSON.parse(obj)
+
+            @storage.get "cell_#{id}", (err, obj) =>
+                if err? then return cb err
+                obj = {} if obj is null
         
-            obj[aspect] = data
-            console.dir obj 
-            obj = JSON.stringify obj
-            localStorage.setItem "cell_#{id}", obj
-            cb null
+                obj[aspect] = data
+                @storage.save "cell_#{id}", obj, cb
             
     colorForCell: (x, y) ->
         index = x+y*4 % 6 + 1
