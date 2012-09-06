@@ -25,25 +25,39 @@
     function Talkshow(cb) {
       var _this = this;
       this.storage = new LocalStorage;
-      setupUIDGenerator(this.storage, function(err) {
-        var grid, keyboardInput, myDataSource, rootNodeId, splitDataSource;
-        if (err != null) {
-          return cb("Failed to initialize UIDGenerator");
+      async.parallel([
+        function(cb) {
+          return setupUIDGenerator(_this.storage, function(err) {
+            if (err != null) {
+              return cb("Failed to initialize UIDGenerator");
+            }
+            return cb(null, null);
+          });
+        }, function(cb) {
+          return _this.storage.get("root", cb);
         }
+      ], function(err, _arg) {
+        var grid, ignored, keyboardInput, myDataSource, rootDoc, rootNodeId, splitDataSource;
+        ignored = _arg[0], rootDoc = _arg[1];
+        if (err != null) {
+          return cb(err);
+        }
+        rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
+        console.log("rootNodeId", rootNodeId);
         grid = new Grid(4, 2);
         _this.navigationController = new NavigationController(grid);
-        rootNodeId = localStorage.getItem("root");
-        console.log("rootNodeId", rootNodeId);
         myDataSource = new DataSource({
           grid: grid,
           level: 1,
           nodeId: rootNodeId,
-          delegate: _this
+          delegate: _this,
+          storage: _this.storage
         });
         _this.yesNoDataSource = new DataSource({
           grid: grid,
           level: 1,
-          nodeId: "yes_no"
+          nodeId: "yes_no",
+          storage: _this.storage
         });
         splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
         _this.navigationController.push(splitDataSource);
@@ -71,7 +85,8 @@
         nodeId: nodeId,
         parent: dataSource,
         position: position,
-        delegate: this
+        delegate: this,
+        storage: this.storage
       });
       splitDataSource = new SplitDataSource(this.yesNoDataSource, myDataSource, 1);
       return this.navigationController.push(splitDataSource);

@@ -1,7 +1,7 @@
 class DataSource
 
     constructor: (options) ->
-        {@grid, @level, @nodeId, @parent, @position, @delegate} = options
+        {@grid, @level, @nodeId, @parent, @position, @delegate, @storage} = options
         
         @level ?= 1
         @cells = {}
@@ -40,8 +40,7 @@ class DataSource
                     @parent.setChild @position, id, cb
                 else
                     console.log "root nodeId is #{@nodeId}" 
-                    localStorage.setItem "root", @nodeId
-                    cb null
+                    @storage.save "root", {value: @nodeId}, cb
         else
             cb null
     

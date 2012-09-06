@@ -7,7 +7,7 @@
     function DataSource(options) {
       var cellDelegate, _ref, _ref1, _ref2,
         _this = this;
-      this.grid = options.grid, this.level = options.level, this.nodeId = options.nodeId, this.parent = options.parent, this.position = options.position, this.delegate = options.delegate;
+      this.grid = options.grid, this.level = options.level, this.nodeId = options.nodeId, this.parent = options.parent, this.position = options.position, this.delegate = options.delegate, this.storage = options.storage;
       if ((_ref = this.level) == null) {
         this.level = 1;
       }
@@ -56,8 +56,9 @@
             return _this.parent.setChild(_this.position, id, cb);
           } else {
             console.log("root nodeId is " + _this.nodeId);
-            localStorage.setItem("root", _this.nodeId);
-            return cb(null);
+            return _this.storage.save("root", {
+              value: _this.nodeId
+            }, cb);
           }
         });
       } else {

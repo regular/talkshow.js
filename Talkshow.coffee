@@ -16,25 +16,33 @@ class Talkshow
     constructor: (cb) ->
         @storage = new LocalStorage
         
-        setupUIDGenerator @storage, (err) =>
-            if err? then return cb "Failed to initialize UIDGenerator"
+        async.parallel [
+                (cb) =>
+                    setupUIDGenerator @storage, (err) =>
+                        if err? then return cb "Failed to initialize UIDGenerator"
+                        cb null, null
+                (cb) =>
+                    @storage.get "root", cb
+        ], (err, [ignored, rootDoc]) =>
+            if err? then return cb err
+            rootNodeId = rootDoc?.value or null
+            console.log "rootNodeId", rootNodeId
         
             grid = new Grid 4, 2
             @navigationController = new NavigationController grid
-
-            rootNodeId = localStorage.getItem "root"
-            console.log "rootNodeId", rootNodeId
 
             myDataSource = new DataSource 
                 grid: grid
                 level: 1, 
                 nodeId: rootNodeId
                 delegate: this
+                storage: @storage
 
             @yesNoDataSource = new DataSource 
                 grid: grid,
                 level: 1
                 nodeId: "yes_no"
+                storage: @storage
     
             splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
@@ -61,6 +69,7 @@ class Talkshow
             parent: dataSource,
             position: position
             delegate: this
+            storage: @storage
         
         splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
         
