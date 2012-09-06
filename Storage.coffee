@@ -21,12 +21,12 @@ class LocalStorage extends Storage
         doc = JSON.parse(s) if s isnt null
         window.setTimeout ->
             cb null, doc
-        , 1000
+        , 10
         
     save: (id, doc, cb) ->
         localStorage.setItem id, if doc isnt null then JSON.stringify(doc) else null
         window.setTimeout ->
             cb null
-        , 1000
+        , 10
 
 window.LocalStorage = LocalStorage

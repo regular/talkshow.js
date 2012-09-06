@@ -46,14 +46,14 @@
       }
       return window.setTimeout(function() {
         return cb(null, doc);
-      }, 1000);
+      }, 10);
     };
 
     LocalStorage.prototype.save = function(id, doc, cb) {
       localStorage.setItem(id, doc !== null ? JSON.stringify(doc) : null);
       return window.setTimeout(function() {
         return cb(null);
-      }, 1000);
+      }, 10);
     };
 
     return LocalStorage;
