@@ -15,7 +15,6 @@
       this.children = {};
       this.factory = new CellFactory({
         labelTextChanged: function(cell, text, cb) {
-          console.log("labelTextChanged", cell, text);
           return _this.save(cell, "label", text, cb);
         },
         contentChanged: function(cell, aspect, dataUri, cb) {
@@ -212,7 +211,7 @@
             return cb(null);
           } else if (data.photo) {
             imagePlayer = new ImagePlayer(data.photo);
-            return cb(mull);
+            return cb(null);
           }
         });
       }

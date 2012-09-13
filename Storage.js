@@ -65,14 +65,26 @@
     __extends(CouchStorage, _super);
 
     function CouchStorage(serverUrl, dbname) {
+      this.serverUrl = serverUrl;
       this.dbname = dbname;
-      $.couch.urlPrefix = serverUrl;
+      $.couch.urlPrefix = this.serverUrl;
     }
 
     CouchStorage.prototype.get = function(id, cb) {
+      var _this = this;
       return $.couch.db(this.dbname).openDoc(id, {
-        success: function(data) {
-          return cb(null, data);
+        success: function(doc) {
+          var a, name, _ref;
+          if (doc._attachments != null) {
+            _ref = doc._attachments;
+            for (name in _ref) {
+              if (!__hasProp.call(_ref, name)) continue;
+              a = _ref[name];
+              doc[name] = "" + _this.serverUrl + "/" + _this.dbname + "/" + id + "/" + name;
+            }
+          }
+          console.log("get returns", doc);
+          return cb(null, doc);
         },
         error: function(status) {
           if (status === 404 || status === '404') {
@@ -84,20 +96,58 @@
       });
     };
 
+    CouchStorage.prototype.replaceBlobs = function(id, oldDoc, doc, cb) {
+      var content_type, encoding, k, meta, newDoc, scheme, v, _ref;
+      newDoc = {
+        _attachments: (oldDoc != null ? oldDoc._attachments : void 0) || {}
+      };
+      for (k in newDoc._attachments) {
+        if (!(k in doc) || !(doc[k] != null)) {
+          newDoc._attachments[k] = null;
+        }
+      }
+      for (k in doc) {
+        if (!__hasProp.call(doc, k)) continue;
+        v = doc[k];
+        if (typeof v === 'string' && v.substr(0, 5) === 'data:') {
+          meta = v.substr(0, v.indexOf(','));
+          _ref = meta.split(/[:;]/g), scheme = _ref[0], content_type = _ref[1], encoding = _ref[2];
+          if (encoding === !"base64") {
+            return cb("createInlineAttachments: encoding is not base64!");
+          }
+          newDoc._attachments[k] = {
+            content_type: content_type,
+            data: v.substr(meta.length + 1)
+          };
+        } else {
+          newDoc[k] = v;
+        }
+      }
+      return cb(null, newDoc);
+    };
+
     CouchStorage.prototype.save = function(id, doc, cb) {
       var _this = this;
-      return this.get(id, function(err, data) {
-        if (data != null ? data._rev : void 0) {
-          doc._rev = data._rev;
-        }
-        doc._id = id;
-        return $.couch.db(_this.dbname).saveDoc(doc, {
-          success: function(data) {
-            return cb(null, data);
-          },
-          error: function(status) {
-            return cb(status);
+      console.log("saving " + id);
+      return this.get(id, function(err, oldDoc) {
+        console.log('oldDoc', oldDoc);
+        return _this.replaceBlobs(id, oldDoc, doc, function(err, newDoc) {
+          if (err != null) {
+            return cb(err);
           }
+          if (oldDoc != null) {
+            newDoc._rev = oldDoc._rev;
+          }
+          newDoc._id = id;
+          console.log("writing:", newDoc);
+          return $.couch.db(_this.dbname).saveDoc(newDoc, {
+            success: function(data) {
+              return cb(null, data);
+            },
+            error: function(status) {
+              return cb(status);
+            }
+          });
         });
       });
     };

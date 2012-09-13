@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="async.min.js"></script><script src="underscore.js"></script></head><body><ol></ol></body></html><script type="text/javascript">
+(function() {
+
+  $(function() {
+    var feedUrl;
+    feedUrl = 'http://www.faz-podcast.de/podcast.php';
+    feedUrl = 'http://redaktion.sz-audio.de/rss/rss-serie-podcastmagazin-mp3.xml';
+    return $.get(feedUrl, null, function(data, textStatus) {
+      var feedImageUrl;
+      feedImageUrl = $(data).find("itunes:image").attr("href");
+      return $(data).find('item').each(function() {
+        var item, itemImageUrl, title, url;
+        item = $(this);
+        url = item.find("enclosure").attr('url');
+        title = item.find("title").text();
+        itemImageUrl = $(data).find("itunes:image").attr("href");
+        if (itemImageUrl == null) {
+          itemImageUrl = feedImageUrl;
+        }
+        return $("body ol").append($("<li>").append($("<img>").attr("src", itemImageUrl)).append($("<a>").attr("href", url).html(title)));
+      });
+    }, 'xml');
+  });
+
+}).call(this);
+</script>

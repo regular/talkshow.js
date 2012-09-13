@@ -9,7 +9,7 @@ class DataSource
 
         @factory = new CellFactory
             labelTextChanged: (cell, text, cb) =>
-                console.log  "labelTextChanged", cell, text
+                #console.log  "labelTextChanged", cell, text
                 @save cell, "label", text, cb
         
             contentChanged: (cell, aspect, dataUri, cb) =>
@@ -139,7 +139,7 @@ class DataSource
                     cb null
                 else if data.photo
                     imagePlayer = new ImagePlayer(data.photo)
-                    cb mull
+                    cb null
             
         if @delegate?
             @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
