@@ -4,20 +4,23 @@
   $(function() {
     var feedUrl;
     feedUrl = 'http://www.faz-podcast.de/podcast.php';
-    feedUrl = 'http://redaktion.sz-audio.de/rss/rss-serie-podcastmagazin-mp3.xml';
     return $.get(feedUrl, null, function(data, textStatus) {
       var feedImageUrl;
-      feedImageUrl = $(data).find("itunes:image").attr("href");
+      window.data = data;
+      console.log(data);
+      console.log($(data).find("itunes\:image, image"));
+      feedImageUrl = $(data).find("image url").text();
       return $(data).find('item').each(function() {
-        var item, itemImageUrl, title, url;
+        var duration, item, itemImageUrl, pubDate, title, url;
         item = $(this);
         url = item.find("enclosure").attr('url');
         title = item.find("title").text();
-        itemImageUrl = $(data).find("itunes:image").attr("href");
-        if (itemImageUrl == null) {
-          itemImageUrl = feedImageUrl;
-        }
-        return $("body ol").append($("<li>").append($("<img>").attr("src", itemImageUrl)).append($("<a>").attr("href", url).html(title)));
+        pubDate = new Date(item.find("pubDate").text());
+        duration = item.find("itunes\:duration, duration").text();
+        itemImageUrl = item.find("image url").text();
+        itemImageUrl = feedImageUrl;
+        console.log(itemImageUrl);
+        return $("body ol").append($("<li>").append($("<img>").attr("src", itemImageUrl)).append($("<span>").html("" + (pubDate.toISOString()) + " " + duration)).append($("<a>").attr("href", url).html(title)));
       });
     }, 'xml');
   });
