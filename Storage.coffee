@@ -36,11 +36,15 @@ class CouchStorage extends Storage
     get: (id, cb) ->
         $.couch.db(@dbname).openDoc id,
             success: (doc) =>
+                doc = _.clone(doc)
                 # make attachments URLs available 
                 if doc._attachments?
-                    for own name, a of doc._attachments
-                        doc[name] = "#{@serverUrl}/#{@dbname}/#{id}/#{name}"
-                console.log "get returns", doc
+                    console.log "iterating attachments"
+                    for own name of doc._attachments
+                        link = "#{@serverUrl}/#{@dbname}/#{id}/#{name}"
+                        console.log "- #{name}, #{link}"
+                        doc[name] = link
+                console.log "get returns", JSON.parse JSON.stringify doc
                 cb null, doc
             error: (status) ->
                 if status is 404 or status is '404'
@@ -49,14 +53,17 @@ class CouchStorage extends Storage
                     cb status
         
     replaceBlobs: (id, oldDoc, doc, cb) ->
-        newDoc = 
-            _attachments: oldDoc?._attachments or {}
-        
+        newDoc = {}
+        newAtt = {}
+
         # remove old attachments
-        for k of newDoc._attachments
-            if not (k of doc) or not doc[k]?
-                newDoc._attachments[k] = null
+        for own k of (oldDoc?._attachments) or {}
+            if doc[k] isnt null
+                newAtt[k] = oldDoc._attachments[k]
+
+        newDoc._attachments = newAtt
         
+        # convert data URIs to attachments
         for own k, v of doc
             if typeof v is 'string' and v.substr(0, 5) is 'data:'
                 meta = v.substr 0, v.indexOf ','
@@ -66,7 +73,8 @@ class CouchStorage extends Storage
                     content_type: content_type
                     data: v.substr meta.length + 1
             else
-                newDoc[k] = v
+                newDoc[k] = v if v isnt null and k isnt "_attachments"
+        
         cb null, newDoc
         
     save: (id, doc, cb) ->
@@ -77,7 +85,7 @@ class CouchStorage extends Storage
                 if err? then return cb err
                 newDoc._rev = oldDoc._rev if oldDoc?
                 newDoc._id = id
-                console.log "writing:", newDoc
+                console.log "writing:", JSON.parse JSON.stringify newDoc
                 $.couch.db(@dbname).saveDoc newDoc,
                     success: (data) ->
                         cb null, data

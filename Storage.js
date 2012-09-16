@@ -74,16 +74,19 @@
       var _this = this;
       return $.couch.db(this.dbname).openDoc(id, {
         success: function(doc) {
-          var a, name, _ref;
+          var link, name, _ref;
+          doc = _.clone(doc);
           if (doc._attachments != null) {
+            console.log("iterating attachments");
             _ref = doc._attachments;
             for (name in _ref) {
               if (!__hasProp.call(_ref, name)) continue;
-              a = _ref[name];
-              doc[name] = "" + _this.serverUrl + "/" + _this.dbname + "/" + id + "/" + name;
+              link = "" + _this.serverUrl + "/" + _this.dbname + "/" + id + "/" + name;
+              console.log("- " + name + ", " + link);
+              doc[name] = link;
             }
           }
-          console.log("get returns", doc);
+          console.log("get returns", JSON.parse(JSON.stringify(doc)));
           return cb(null, doc);
         },
         error: function(status) {
@@ -97,21 +100,23 @@
     };
 
     CouchStorage.prototype.replaceBlobs = function(id, oldDoc, doc, cb) {
-      var content_type, encoding, k, meta, newDoc, scheme, v, _ref;
-      newDoc = {
-        _attachments: (oldDoc != null ? oldDoc._attachments : void 0) || {}
-      };
-      for (k in newDoc._attachments) {
-        if (!(k in doc) || !(doc[k] != null)) {
-          newDoc._attachments[k] = null;
+      var content_type, encoding, k, meta, newAtt, newDoc, scheme, v, _ref, _ref1;
+      newDoc = {};
+      newAtt = {};
+      _ref = (oldDoc != null ? oldDoc._attachments : void 0) || {};
+      for (k in _ref) {
+        if (!__hasProp.call(_ref, k)) continue;
+        if (doc[k] !== null) {
+          newAtt[k] = oldDoc._attachments[k];
         }
       }
+      newDoc._attachments = newAtt;
       for (k in doc) {
         if (!__hasProp.call(doc, k)) continue;
         v = doc[k];
         if (typeof v === 'string' && v.substr(0, 5) === 'data:') {
           meta = v.substr(0, v.indexOf(','));
-          _ref = meta.split(/[:;]/g), scheme = _ref[0], content_type = _ref[1], encoding = _ref[2];
+          _ref1 = meta.split(/[:;]/g), scheme = _ref1[0], content_type = _ref1[1], encoding = _ref1[2];
           if (encoding === !"base64") {
             return cb("createInlineAttachments: encoding is not base64!");
           }
@@ -120,7 +125,9 @@
             data: v.substr(meta.length + 1)
           };
         } else {
-          newDoc[k] = v;
+          if (v !== null && k !== "_attachments") {
+            newDoc[k] = v;
+          }
         }
       }
       return cb(null, newDoc);
@@ -139,7 +146,7 @@
             newDoc._rev = oldDoc._rev;
           }
           newDoc._id = id;
-          console.log("writing:", newDoc);
+          console.log("writing:", JSON.parse(JSON.stringify(newDoc)));
           return $.couch.db(_this.dbname).saveDoc(newDoc, {
             success: function(data) {
               return cb(null, data);
