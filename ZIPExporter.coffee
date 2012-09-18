@@ -96,12 +96,14 @@ class ZIPExporter
                     if x?.overrideMimeType
                         x.overrideMimeType 'text/plain; charset=x-user-defined'
                 error: (jqXHR, textStatus, errorThrown) -> cb errorThrown
-                success: (data) ->
+                success: (data, textStatis, xhr) ->
                     cleanData = ""
                     for x in [0...data.length]
                         code = data.charCodeAt(x) & 0xff
                         cleanData += String.fromCharCode(code)
-                    cb null, cleanData
+                    cb null, 
+                        data: cleanData
+                        contentType: xhr.getResponseHeader("content-type") 
         , 3
         
         q.drain = ->
@@ -118,14 +120,17 @@ class ZIPExporter
             ( (k, v) =>
                 if isExternalURI(v)
                     gotSomethingQueued = true
-                    q.push v, (err, data) =>
+                    q.push v, (err, o) =>
                         if err?
                             console.log "download ended with error #{err}"
                         else
-                            console.log "received #{data.length} bytes #{data.substr(1,3)}"
+                            console.log "received #{o.data.length} bytes #{o.data.substr(1,3)}"
                             filename = "cell_#{cellId}_#{k}"
+                            extension = window.mimeTypes[o.contentType or "text/plain"]
+                            filename += ".#{extension}"
+                            
                             #@data[filename] = data.length
-                            @assets.file filename, data, {base64: false, binary: true}
+                            @assets.file filename, o.data, {base64: false, binary: true}
                                 
                             doc[k] = "./assets/#{filename}"
             )(k, v)

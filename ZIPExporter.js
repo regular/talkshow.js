@@ -132,14 +132,17 @@
           error: function(jqXHR, textStatus, errorThrown) {
             return cb(errorThrown);
           },
-          success: function(data) {
+          success: function(data, textStatis, xhr) {
             var cleanData, code, x, _i, _ref;
             cleanData = "";
             for (x = _i = 0, _ref = data.length; 0 <= _ref ? _i < _ref : _i > _ref; x = 0 <= _ref ? ++_i : --_i) {
               code = data.charCodeAt(x) & 0xff;
               cleanData += String.fromCharCode(code);
             }
-            return cb(null, cleanData);
+            return cb(null, {
+              data: cleanData,
+              contentType: xhr.getResponseHeader("content-type")
+            });
           }
         });
       }, 3);
@@ -154,14 +157,16 @@
       _fn = function(k, v) {
         if (isExternalURI(v)) {
           gotSomethingQueued = true;
-          return q.push(v, function(err, data) {
-            var filename;
+          return q.push(v, function(err, o) {
+            var extension, filename;
             if (err != null) {
               return console.log("download ended with error " + err);
             } else {
-              console.log("received " + data.length + " bytes " + (data.substr(1, 3)));
+              console.log("received " + o.data.length + " bytes " + (o.data.substr(1, 3)));
               filename = "cell_" + cellId + "_" + k;
-              _this.assets.file(filename, data, {
+              extension = window.mimeTypes[o.contentType || "text/plain"];
+              filename += "." + extension;
+              _this.assets.file(filename, o.data, {
                 base64: false,
                 binary: true
               });
