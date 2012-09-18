@@ -11,9 +11,12 @@ class Storage
     save: (id, doc, cb) ->
     remove: (id, cb) ->
         @save id, null, cb
+    toString: -> "unkown Storage"
         
 class LocalStorage extends Storage
     # TODO: remove async simulation timeout
+    
+    toString: -> "HTML5 LocalStorage"
     
     get: (id, cb) ->
         s = localStorage.getItem id
@@ -32,7 +35,9 @@ class LocalStorage extends Storage
 class CouchStorage extends Storage
     constructor: (@serverUrl, @dbname)->
         $.couch.urlPrefix = @serverUrl
-     
+    
+    toString: -> "CouchDB at #{@serverUrl}/#{@dbname}"
+    
     get: (id, cb) ->
         @_get id, (err, doc) ->
             if err? then return cb err

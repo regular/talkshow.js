@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery-1.7.1-binary-ajax.js"></script><script src="jquery.base64.min.js"></script><script src="jquery.couch.js"></script><script src="async.min.js"></script><script src="underscore.js"></script><script src="Grid.js"></script><script src="Scanner.js"></script><script src="NavigationController.js"></script><script src="DataSource.js"></script><script src="SplitDataSource.js"></script><script src="CellFactory.js"></script><script src="Settings.js"></script><script src="BlindKeyboardInput.js"></script><script src="ModalDialog.js"></script><script src="AudioPlayer.js"></script><script src="ImagePlayer.js"></script><script src="Storage.js"></script><script src="ZIPExporter.js"></script><div id="script" src="jszip-deflate.js"></div><div id="script" src="jszip-inflate.js"></div><div id="script" src="jszip-load.js"></div><script src="jszip.js"></script><script src="Talkshow.js"></script></head><body><h1>Talkshow.js</h1><a id="export">Als Zip-Datei exportieren</a><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div><div id="settings"><input id="editSwitch" type="checkbox"/><span>edit mode</span><ul id="colors" class="showInEditMode"></ul></div><div id="dialogs"><div class="audioPlayer"><div class="dialog"><div class="title">Audio Player</div><audio controls="controls"></audio><div type="pause" class="choice">Pause (L)</div><div type="back" class="choice">Zurück (R)</div></div></div><div class="imagePlayer"><div class="dialog"><div class="title">Foto</div><img/><div><div type="back" class="choice">Zurück (R)</div></div></div></div><div class="soundDropped"><div class="dialog"><div class="title">Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?</div><div type="navigationSound" class="choice">Navigationsansage</div><div type="sound" class="choice">Musik/Hörbuch</div><div class="choice">Abbrechen</div></div></div><div class="imageDropped"><div class="dialog"><div class="title">Ist diese Bilddatei als Symbol, als Feldhintergrund  oder als Inhalt (Foto) gedacht?</div><div type="icon" class="choice">Symbol</div><div type="background" class="choice">Feldhintergrund</div><div type="photo" class="choice">Foto</div><div class="choice">Abbrechen</div></div></div><div class="delete"><div class="navigationSound"><div class="dialog"><div class="title">Soll diese Navigationsansage gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="sound"><div class="dialog"><div class="title">Soll dieser Audioinhalt gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="icon"><div class="dialog"><div class="title">Soll dieses Symbol entfernt werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="background"><div class="dialog"><div class="title">Soll dieser Feldhintergrund entfernt werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="photo"><div class="dialog"><div class="title">Soll dieses Foto gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div></div></div></body></html><style type="text/css">.dialog {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><script src="jquery.min.js"></script><script src="jquery.couch.js"></script><script src="async.min.js"></script><script src="underscore.js"></script><script src="jszip.js"></script><script src="Grid.js"></script><script src="Scanner.js"></script><script src="NavigationController.js"></script><script src="DataSource.js"></script><script src="SplitDataSource.js"></script><script src="CellFactory.js"></script><script src="Settings.js"></script><script src="BlindKeyboardInput.js"></script><script src="ModalDialog.js"></script><script src="AudioPlayer.js"></script><script src="ImagePlayer.js"></script><script src="Storage.js"></script><script src="ZIPExporter.js"></script><script src="Talkshow.js"></script></head><body><div id="header"><h2>Talkshow.js</h2><span id="storageIdentifier"></span><a id="export">Inhalte als Zip-Datei exportieren</a></div><div id="grid"></div><div id="horiz" class="pointer">⬇</div><div id="vert" class="pointer">➨</div><div id="settings"><input id="editSwitch" type="checkbox"/><span>edit mode</span><ul id="colors" class="showInEditMode"></ul></div><div id="dialogs"><div class="audioPlayer"><div class="dialog"><div class="title">Audio Player</div><audio controls="controls"></audio><div type="pause" class="choice">Pause (L)</div><div type="back" class="choice">Zurück (R)</div></div></div><div class="imagePlayer"><div class="dialog"><div class="title">Foto</div><img/><div><div type="back" class="choice">Zurück (R)</div></div></div></div><div class="soundDropped"><div class="dialog"><div class="title">Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?</div><div type="navigationSound" class="choice">Navigationsansage</div><div type="sound" class="choice">Musik/Hörbuch</div><div class="choice">Abbrechen</div></div></div><div class="imageDropped"><div class="dialog"><div class="title">Ist diese Bilddatei als Symbol, als Feldhintergrund  oder als Inhalt (Foto) gedacht?</div><div type="icon" class="choice">Symbol</div><div type="background" class="choice">Feldhintergrund</div><div type="photo" class="choice">Foto</div><div class="choice">Abbrechen</div></div></div><div class="delete"><div class="navigationSound"><div class="dialog"><div class="title">Soll diese Navigationsansage gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="sound"><div class="dialog"><div class="title">Soll dieser Audioinhalt gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="icon"><div class="dialog"><div class="title">Soll dieses Symbol entfernt werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="background"><div class="dialog"><div class="title">Soll dieser Feldhintergrund entfernt werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div><div class="photo"><div class="dialog"><div class="title">Soll dieses Foto gelöscht werden?</div><div type="delete" class="choice">Löschen</div><div class="choice">Abbrechen</div></div></div></div></div></body></html><style type="text/css">.dialog {
   position: absolute;
   width: 50%;
   left: 25%;
@@ -33,11 +33,23 @@ body {
   text-shadow: 1px 1px 2px rgba(0,0,0,0.20);
   color: #666;
 }
-h1 {
+#header {
   background-color: #555;
-  font-size: 40pt;
   margin: 0px 20px;
   color: #aaa;
+}
+h2 {
+  font-size: 40pt;
+  display: inline;
+}
+#header span {
+  margin: 5px 50px;
+}
+#header a {
+  border: 1px solid #aaa;
+  margin: 2px 47px;
+  padding: 3px 3px;
+  border-radius: 18px;
 }
 #grid {
   margin: 50px 50px;
@@ -137,6 +149,8 @@ td.dragTarget {
     return talkshow = new Talkshow(function(err) {
       if (err) {
         return $("body").html("Failed to initialize Talkshow: " + err);
+      } else {
+        return $('#storageIdentifier').html(talkshow.storage.toString());
       }
     });
   });

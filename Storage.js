@@ -25,6 +25,10 @@
       return this.save(id, null, cb);
     };
 
+    Storage.prototype.toString = function() {
+      return "unkown Storage";
+    };
+
     return Storage;
 
   })();
@@ -36,6 +40,10 @@
     function LocalStorage() {
       return LocalStorage.__super__.constructor.apply(this, arguments);
     }
+
+    LocalStorage.prototype.toString = function() {
+      return "HTML5 LocalStorage";
+    };
 
     LocalStorage.prototype.get = function(id, cb) {
       var doc, s;
@@ -69,6 +77,10 @@
       this.dbname = dbname;
       $.couch.urlPrefix = this.serverUrl;
     }
+
+    CouchStorage.prototype.toString = function() {
+      return "CouchDB at " + this.serverUrl + "/" + this.dbname;
+    };
 
     CouchStorage.prototype.get = function(id, cb) {
       return this._get(id, function(err, doc) {

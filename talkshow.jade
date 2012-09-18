@@ -6,6 +6,8 @@ html
         script(src='jquery.couch.js')
         script(src='async.min.js')
         script(src='underscore.js')
+        script(src='jszip.js')
+        
         script(src='Grid.js')
         script(src='Scanner.js')
         script(src='NavigationController.js')
@@ -19,12 +21,13 @@ html
         script(src='ImagePlayer.js')
         script(src='Storage.js')
         script(src='ZIPExporter.js')
-        script(src='jszip.js')
         script(src='Talkshow.js')
         
     body
-        h1 Talkshow.js
-        a#export Inhalte als Zip-Datei exportieren
+        #header
+            h2 Talkshow.js
+            span#storageIdentifier
+            a#export Inhalte als Zip-Datei exportieren
         #grid
         #horiz.pointer ⬇
         #vert.pointer ➨
@@ -128,11 +131,23 @@ html
         text-shadow: 1px 1px 2px rgba(0,0,0,0.2)
         color: #666
     
-    h1
+    #header
         background-color: #555
-        font-size: 40pt
         margin: 0px 20px
         color: #aaa
+        
+    h2
+        font-size: 40pt
+        display: inline
+        
+    #header span
+        margin: 5px 50px
+        
+    #header a
+        border: 1px solid #aaa
+        margin 2px 47px
+        padding: 3px 3px
+        border-radius: 18px
     
     #grid
         margin: 50px 50px
@@ -226,4 +241,6 @@ html
         talkshow = new Talkshow (err) ->
             if err
                 $("body").html "Failed to initialize Talkshow: #{err}"
+            else
+                $('#storageIdentifier').html talkshow.storage.toString()
     
