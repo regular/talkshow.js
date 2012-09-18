@@ -32,8 +32,8 @@ class ZIPExporter
                 console.log @data
                 cb null
         
-            @q.push rootNodeId, (err) ->
-                console.log "finished exporting root with error #{err}"
+            @q.push rootNodeId, (err, nodeId) ->
+                console.log "finished exporting root (id=#{nodeId}) with error #{err}"
             
     _visitNode: (nodeId, cb) ->
             async.parallel [
@@ -48,34 +48,33 @@ class ZIPExporter
                     @data["node_#{nodeId}_children"] = children
                     for own position, childNodeId of children
                         console.log "starting exporting node #{childNodeId}"
-                        console.log "exporting child #{childNodeId}"
-                        @q.push childNodeId, (err) ->
-                            console.log "finished exporting node #{childNodeId} with error #{err}"
+                        @q.push childNodeId, (err, nodeId) ->
+                            console.log "finished exporting node #{nodeId} with error #{err}"
                 
                 if cells? and not _.isEmpty(cells)
                     console.log "Start exporting node #{nodeId}'s cells"
                     @data["node_#{nodeId}_cells"] = cells
                     q = async.queue (id, cb) =>
-                        key = "cell_#{cellId}"
+                        key = "cell_#{id}"
                         console.log "getting data of #{key}"
                         @storage.get key, (err, doc) =>
                             if doc? and not _.isEmpty(doc)
                                 @data[key] = doc 
-                                @handleCellData cellId, doc, cb
+                                @handleCellData id, doc, cb
                             else
-                                cb err
+                                cb err, nodeId
                     , 3
 
                     q.drain = ->
                         console.log "Done exporting node #{nodeId}'s cells"
-                        cb null
+                        cb null, nodeId
                     
                     for own position, cellId of cells
-                        q.push cellId, (err) ->
+                        q.push cellId, (err, cellId) ->
                             console.log "finished getting cell #{cellId} with error #{err}"
 
                 else
-                    cb null
+                    cb null, nodeId
                     
     handleCellData: (cellId, doc, cb) ->
         # purpose: download linked resources and put then in a zip archive
@@ -107,7 +106,7 @@ class ZIPExporter
         
         q.drain = ->
             console.log "Finished downloading assets of cell #{cellId}"
-            cb null
+            cb null, cellId
             
         ignoreKeys = ["label"]
         
@@ -116,7 +115,7 @@ class ZIPExporter
         
         for k, v of doc
             if k in ignoreKeys then continue
-            ( (k) =>
+            ( (k, v) =>
                 if isExternalURI(v)
                     gotSomethingQueued = true
                     q.push v, (err, data) =>
@@ -129,9 +128,9 @@ class ZIPExporter
                             @assets.file filename, data, {base64: false, binary: true}
                                 
                             doc[k] = "./assets/#{filename}"
-            )(k)
+            )(k, v)
 
         if not gotSomethingQueued
-            cb null
+            cb null, cellId
             
 window.ZIPExporter = ZIPExporter    

@@ -48,8 +48,8 @@
           console.log(_this.data);
           return cb(null);
         };
-        return _this.q.push(rootNodeId, function(err) {
-          return console.log("finished exporting root with error " + err);
+        return _this.q.push(rootNodeId, function(err, nodeId) {
+          return console.log("finished exporting root (id=" + nodeId + ") with error " + err);
         });
       });
     };
@@ -75,9 +75,8 @@
             if (!__hasProp.call(children, position)) continue;
             childNodeId = children[position];
             console.log("starting exporting node " + childNodeId);
-            console.log("exporting child " + childNodeId);
-            _this.q.push(childNodeId, function(err) {
-              return console.log("finished exporting node " + childNodeId + " with error " + err);
+            _this.q.push(childNodeId, function(err, nodeId) {
+              return console.log("finished exporting node " + nodeId + " with error " + err);
             });
           }
         }
@@ -86,32 +85,32 @@
           _this.data["node_" + nodeId + "_cells"] = cells;
           q = async.queue(function(id, cb) {
             var key;
-            key = "cell_" + cellId;
+            key = "cell_" + id;
             console.log("getting data of " + key);
             return _this.storage.get(key, function(err, doc) {
               if ((doc != null) && !_.isEmpty(doc)) {
                 _this.data[key] = doc;
-                return _this.handleCellData(cellId, doc, cb);
+                return _this.handleCellData(id, doc, cb);
               } else {
-                return cb(err);
+                return cb(err, nodeId);
               }
             });
           }, 3);
           q.drain = function() {
             console.log("Done exporting node " + nodeId + "'s cells");
-            return cb(null);
+            return cb(null, nodeId);
           };
           _results = [];
           for (position in cells) {
             if (!__hasProp.call(cells, position)) continue;
             cellId = cells[position];
-            _results.push(q.push(cellId, function(err) {
+            _results.push(q.push(cellId, function(err, cellId) {
               return console.log("finished getting cell " + cellId + " with error " + err);
             }));
           }
           return _results;
         } else {
-          return cb(null);
+          return cb(null, nodeId);
         }
       });
     };
@@ -146,13 +145,13 @@
       }, 3);
       q.drain = function() {
         console.log("Finished downloading assets of cell " + cellId);
-        return cb(null);
+        return cb(null, cellId);
       };
       ignoreKeys = ["label"];
       isExternalURI = function(uri) {
         return uri.substr(0, 5) === "http:";
       };
-      _fn = function(k) {
+      _fn = function(k, v) {
         if (isExternalURI(v)) {
           gotSomethingQueued = true;
           return q.push(v, function(err, data) {
@@ -176,10 +175,10 @@
         if (__indexOf.call(ignoreKeys, k) >= 0) {
           continue;
         }
-        _fn(k);
+        _fn(k, v);
       }
       if (!gotSomethingQueued) {
-        return cb(null);
+        return cb(null, cellId);
       }
     };
 
