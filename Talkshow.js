@@ -22,6 +22,12 @@
 
   Talkshow = (function() {
 
+    Talkshow.prototype["export"] = function(exporterName, cb) {
+      var exporter;
+      exporter = new ZIPExporter;
+      return exporter["export"](this.storage, cb);
+    };
+
     function Talkshow(cb) {
       var grid,
         _this = this;

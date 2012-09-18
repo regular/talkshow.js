@@ -71,22 +71,38 @@
     }
 
     CouchStorage.prototype.get = function(id, cb) {
+      return this._get(id, function(err, doc) {
+        var cleanDoc, k, v;
+        if (err != null) {
+          return cb(err);
+        }
+        cleanDoc = {};
+        for (k in doc) {
+          if (!__hasProp.call(doc, k)) continue;
+          v = doc[k];
+          if (k.substr(0, 1) === "_") {
+            continue;
+          }
+          cleanDoc[k] = doc[k];
+        }
+        return cb(null, cleanDoc);
+      });
+    };
+
+    CouchStorage.prototype._get = function(id, cb) {
       var _this = this;
       return $.couch.db(this.dbname).openDoc(id, {
         success: function(doc) {
           var link, name, _ref;
           doc = _.clone(doc);
           if (doc._attachments != null) {
-            console.log("iterating attachments");
             _ref = doc._attachments;
             for (name in _ref) {
               if (!__hasProp.call(_ref, name)) continue;
               link = "" + _this.serverUrl + "/" + _this.dbname + "/" + id + "/" + name;
-              console.log("- " + name + ", " + link);
               doc[name] = link;
             }
           }
-          console.log("get returns", JSON.parse(JSON.stringify(doc)));
           return cb(null, doc);
         },
         error: function(status) {
@@ -135,9 +151,7 @@
 
     CouchStorage.prototype.save = function(id, doc, cb) {
       var _this = this;
-      console.log("saving " + id);
-      return this.get(id, function(err, oldDoc) {
-        console.log('oldDoc', oldDoc);
+      return this._get(id, function(err, oldDoc) {
         return _this.replaceBlobs(id, oldDoc, doc, function(err, newDoc) {
           if (err != null) {
             return cb(err);
@@ -146,7 +160,6 @@
             newDoc._rev = oldDoc._rev;
           }
           newDoc._id = id;
-          console.log("writing:", JSON.parse(JSON.stringify(newDoc)));
           return $.couch.db(_this.dbname).saveDoc(newDoc, {
             success: function(data) {
               return cb(null, data);

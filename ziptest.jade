@@ -1,0 +1,47 @@
+!!!
+html
+    head
+        meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+        script(src='jquery-1.7.1-binary-ajax.js')
+        script(src='jquery.base64.min.js')
+        script(src='jszip.js')
+        
+    body
+
+    :coffeescript
+        $ ->
+            zip = new JSZip()
+            assets = zip.folder 'assets'
+            url = 'http://images.apple.com/global/elements/flags/22x22/usa.png'
+        
+            $.ajax 
+                url: url
+                dataType: 'text'
+                beforeSend: (x) ->
+                    if x?.overrideMimeType
+                        x.overrideMimeType 'text/plain; charset=x-user-defined'
+                error: (jqXHR, textStatus, errorThrown) ->
+                    console.log errorThrown
+                success: (data) -> 
+                    console.log "received #{data.length} bytes"
+                    s = ""
+                    s2 = ""
+                    for x in [0...data.length]
+                        code = data.charCodeAt(x) & 0xff
+                        if x < 64
+                            s+= code.toString(16) + " "
+                        s2+= String.fromCharCode(code)
+                    console.log s
+                    
+                    #data = $.base64.encode data
+                    data = s2
+                    
+                    assets.file "test.png", data, {base64: false, binary: true}
+                                      
+                    zipFileLink = "data:application/zip;base64," + zip.generate
+                        base64: true
+                        compression: 'STORE'
+                  
+                    $("body").append $("<a>").attr("href", zipFileLink).html('zip file')
+
+    

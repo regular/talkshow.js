@@ -1,0 +1,18 @@
+!!!
+html
+    head
+        meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+        script(src='jquery.min.js')
+        script(src='async.min.js')
+        script(src='underscore.js')
+        script(src='jquery.couch.js')
+        
+    body
+
+:coffeescript
+    $ ->
+        $.couch.urlPrefix = "http://localhost:5984"
+        $.couch.info
+            success: (data) ->
+                $("body").html JSON.stringify data
+    

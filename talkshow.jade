@@ -18,10 +18,13 @@ html
         script(src='AudioPlayer.js')
         script(src='ImagePlayer.js')
         script(src='Storage.js')
+        script(src='ZIPExporter.js')
+        script(src='jszip.js')
         script(src='Talkshow.js')
         
     body
         h1 Talkshow.js
+        a#export Inhalte als Zip-Datei exportieren
         #grid
         #horiz.pointer ⬇
         #vert.pointer ➨
@@ -212,6 +215,13 @@ html
 
 :coffeescript
     $ ->
+        $("#export").click ->
+            $("#export").hide()
+            talkshow.export "zip", (err, link)->
+                console.log "export callback triggered"
+                $("#export").show()
+                location.href = link
+            
         $(".dialog").hide()
         talkshow = new Talkshow (err) ->
             if err

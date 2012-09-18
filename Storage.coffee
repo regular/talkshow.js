@@ -32,19 +32,32 @@ class LocalStorage extends Storage
 class CouchStorage extends Storage
     constructor: (@serverUrl, @dbname)->
         $.couch.urlPrefix = @serverUrl
-        
+     
     get: (id, cb) ->
+        @_get id, (err, doc) ->
+            if err? then return cb err
+            
+            # remove keys added by couch
+            cleanDoc = {}
+            
+            for own k, v of doc
+                if k.substr(0,1) is "_" then continue
+                cleanDoc[k] = doc[k]
+            
+            cb null, cleanDoc
+        
+    _get: (id, cb) ->
         $.couch.db(@dbname).openDoc id,
             success: (doc) =>
                 doc = _.clone(doc)
                 # make attachments URLs available 
                 if doc._attachments?
-                    console.log "iterating attachments"
+                    # console.log "iterating attachments"
                     for own name of doc._attachments
                         link = "#{@serverUrl}/#{@dbname}/#{id}/#{name}"
-                        console.log "- #{name}, #{link}"
+                        #console.log "- #{name}, #{link}"
                         doc[name] = link
-                console.log "get returns", JSON.parse JSON.stringify doc
+                #console.log "get returns", JSON.parse JSON.stringify doc
                 cb null, doc
             error: (status) ->
                 if status is 404 or status is '404'
@@ -78,14 +91,14 @@ class CouchStorage extends Storage
         cb null, newDoc
         
     save: (id, doc, cb) ->
-        console.log "saving #{id}"
-        @get id, (err, oldDoc) =>
-            console.log 'oldDoc', oldDoc
+        #console.log "saving #{id}"
+        @_get id, (err, oldDoc) =>
+            #console.log 'oldDoc', oldDoc
             @replaceBlobs id, oldDoc, doc, (err, newDoc) =>
                 if err? then return cb err
                 newDoc._rev = oldDoc._rev if oldDoc?
                 newDoc._id = id
-                console.log "writing:", JSON.parse JSON.stringify newDoc
+                #console.log "writing:", JSON.parse JSON.stringify newDoc
                 $.couch.db(@dbname).saveDoc newDoc,
                     success: (data) ->
                         cb null, data

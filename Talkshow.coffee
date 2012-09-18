@@ -13,6 +13,10 @@ setupUIDGenerator = (storage, cb) ->
 
 class Talkshow
     
+    export: (exporterName, cb) ->
+        exporter = new ZIPExporter
+        exporter.export @storage, cb
+    
     constructor: (cb) ->
         #@storage = new LocalStorage
         @storage = new CouchStorage "http://localhost:5984", "talkshow"
