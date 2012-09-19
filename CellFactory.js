@@ -13,6 +13,9 @@
       self = this;
       return $("<div>").html(text).addClass('label').click(function() {
         var label, parent;
+        if (!isEditMode()) {
+          return true;
+        }
         label = $(this);
         parent = label.parent();
         KeyboardInput.get().pushModalKeyHandler(null);
@@ -53,7 +56,7 @@
       }
       icon = cell.children('.icon');
       audio = cell.find('audio');
-      cell.find(".iconbar>." + aspect)[dataUri ? 'show' : 'hide']();
+      cell.find(".iconbar ." + aspect + ".iconbarItem")[dataUri ? 'show' : 'hide']();
       switch (aspect) {
         case 'background':
           return cell.css('background-image', dataUri ? "url(" + dataUri + ")" : 'none');
@@ -109,13 +112,18 @@
     };
 
     CellFactory.prototype.makeIconBar = function(data) {
-      var iconBar, makeIconBarItem, self;
+      var iconBar, inEditMode, makeIconBarItem, self;
       iconBar = $('<div>').addClass('iconbar');
+      inEditMode = $("<div>").addClass("showInEditMode");
+      iconBar.append(inEditMode);
       self = this;
       makeIconBarItem = function(aspect, imageURL) {
-        return $('<img>').hide().addClass(aspect).attr('src', imageURL).click(function() {
+        return $('<img>').hide().addClass(aspect).addClass('iconbarItem').attr('src', imageURL).click(function() {
           var cell, dialog,
             _this = this;
+          if (!isEditMode()) {
+            return true;
+          }
           cell = iconBar.closest("td");
           dialog = new ModalDialog(".delete ." + aspect + " .dialog", function(name) {
             var _ref;
@@ -133,8 +141,8 @@
           return false;
         });
       };
-      iconBar.append(makeIconBarItem('icon', 'icons/icon.png'));
-      iconBar.append(makeIconBarItem('background', 'icons/background.png'));
+      inEditMode.append(makeIconBarItem('icon', 'icons/icon.png'));
+      inEditMode.append(makeIconBarItem('background', 'icons/background.png'));
       iconBar.append(makeIconBarItem('photo', 'icons/86-camera@2x.png'));
       iconBar.append(makeIconBarItem('navigationSound', 'icons/08-chat@2x.png'));
       return iconBar.append(makeIconBarItem('sound', 'icons/65-note@2x.png'));

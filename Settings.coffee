@@ -2,12 +2,6 @@ class Settings
    
     constructor: () ->
         # -- edit mode
-        $(".showInEditMode").hide()
-        $("#editSwitch").change ()->
-            if $(this).attr("checked")
-                $(".showInEditMode").show()
-            else
-                $(".showInEditMode").hide()
         @loadColors()
 
         if $("#colors li").length is 0

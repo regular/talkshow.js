@@ -5,6 +5,8 @@ class CellFactory
         self = this
         
         return $("<div>").html(text).addClass('label').click ()->
+            if not isEditMode() then return true
+            
             label = $ this
             parent = label.parent()
             KeyboardInput.get().pushModalKeyHandler null
@@ -40,7 +42,7 @@ class CellFactory
         icon = cell.children '.icon'
         audio = cell.find 'audio'
         
-        cell.find(".iconbar>.#{aspect}")[if dataUri then 'show' else 'hide']()
+        cell.find(".iconbar .#{aspect}.iconbarItem")[if dataUri then 'show' else 'hide']()
         
         switch aspect
             when 'background'
@@ -83,14 +85,18 @@ class CellFactory
     
     makeIconBar: (data) ->
         iconBar = $('<div>').addClass 'iconbar'
+        inEditMode = $("<div>").addClass "showInEditMode"
+        iconBar.append inEditMode
         self = this
         
         makeIconBarItem = (aspect, imageURL) ->
             $('<img>')
                 .hide()
                 .addClass(aspect)
+                .addClass('iconbarItem')
                 .attr('src', imageURL)
                 .click ->
+                    if not isEditMode() then return true
                     cell = iconBar.closest "td"
                     dialog = new ModalDialog ".delete .#{aspect} .dialog", (name) =>
                         if name is 'delete'
@@ -103,8 +109,8 @@ class CellFactory
                             
                     return false
 
-        iconBar.append makeIconBarItem 'icon', 'icons/icon.png'
-        iconBar.append makeIconBarItem 'background', 'icons/background.png'
+        inEditMode.append makeIconBarItem 'icon', 'icons/icon.png'
+        inEditMode.append makeIconBarItem 'background', 'icons/background.png'
         iconBar.append makeIconBarItem 'photo', 'icons/86-camera@2x.png'
         iconBar.append makeIconBarItem 'navigationSound', 'icons/08-chat@2x.png'
         iconBar.append makeIconBarItem 'sound', 'icons/65-note@2x.png'

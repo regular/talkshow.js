@@ -6,14 +6,6 @@
 
     function Settings() {
       var _this = this;
-      $(".showInEditMode").hide();
-      $("#editSwitch").change(function() {
-        if ($(this).attr("checked")) {
-          return $(".showInEditMode").show();
-        } else {
-          return $(".showInEditMode").hide();
-        }
-      });
       this.loadColors();
       if ($("#colors li").length === 0) {
         this.addDefaultColors();
