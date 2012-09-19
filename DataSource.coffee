@@ -131,20 +131,21 @@ class DataSource
 
         console.log "nodeId", childNodeId
         
-        if childNodeId is null
-            @cellData x,y, (err, data) =>
-                if err? then return cb err
+        @cellData x,y, (err, data) =>
+            if err? then return cb err
+            
+            if childNodeId is null
                 if data.sound
                     audioPlayer = new AudioPlayer(data.sound)
-                    cb null
+                    return cb null
                 else if data.photo
                     imagePlayer = new ImagePlayer(data.photo)
-                    cb null
-            
-        if @delegate?
-            @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
-        else
-            cb null
+                    return cb null
+        
+            if @delegate?
+                @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
+            else
+                cb null
     
     cellForPosition: (x, y, cb) ->
         @cellData x,y, (err, data) =>

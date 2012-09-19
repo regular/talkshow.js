@@ -200,12 +200,12 @@
         }
       }
       console.log("nodeId", childNodeId);
-      if (childNodeId === null) {
-        this.cellData(x, y, function(err, data) {
-          var audioPlayer, imagePlayer;
-          if (err != null) {
-            return cb(err);
-          }
+      return this.cellData(x, y, function(err, data) {
+        var audioPlayer, imagePlayer;
+        if (err != null) {
+          return cb(err);
+        }
+        if (childNodeId === null) {
           if (data.sound) {
             audioPlayer = new AudioPlayer(data.sound);
             return cb(null);
@@ -213,16 +213,16 @@
             imagePlayer = new ImagePlayer(data.photo);
             return cb(null);
           }
-        });
-      }
-      if (this.delegate != null) {
-        return this.delegate.enteredCell(this, {
-          x: x,
-          y: y
-        }, this.level + 1, childNodeId, cb);
-      } else {
-        return cb(null);
-      }
+        }
+        if (_this.delegate != null) {
+          return _this.delegate.enteredCell(_this, {
+            x: x,
+            y: y
+          }, _this.level + 1, childNodeId, cb);
+        } else {
+          return cb(null);
+        }
+      });
     };
 
     DataSource.prototype.cellForPosition = function(x, y, cb) {

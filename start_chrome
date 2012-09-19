@@ -1,0 +1,1 @@
+open -a Google\ Chrome --args --disable-web-security -–allow-file-access-from-files file://$(pwd)/talkshow.html
