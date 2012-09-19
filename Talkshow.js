@@ -29,57 +29,62 @@
     };
 
     function Talkshow(cb) {
-      var grid,
-        _this = this;
-      this.storage = new CouchStorage("http://localhost:5984", "talkshow");
-      grid = new Grid(4, 2);
-      this.navigationController = new NavigationController(grid);
-      async.parallel([
-        function(cb) {
-          return setupUIDGenerator(_this.storage, function(err) {
-            if (err != null) {
-              return cb("Failed to initialize UIDGenerator " + err);
-            }
-            return cb(null, null);
-          });
-        }, function(cb) {
-          return _this.storage.get("root", cb);
-        }
-      ], function(err, _arg) {
-        var ignored, rootDoc, rootNodeId;
-        ignored = _arg[0], rootDoc = _arg[1];
+      var _this = this;
+      new StorageFactory().getBestStorage(function(err, result) {
+        var grid;
         if (err != null) {
           return cb(err);
         }
-        rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
-        console.log("rootNodeId", rootNodeId);
+        _this.storage = result;
+        grid = new Grid(4, 2);
+        _this.navigationController = new NavigationController(grid);
         return async.parallel([
           function(cb) {
-            return new DataSource({
-              grid: grid,
-              level: 1,
-              nodeId: rootNodeId,
-              delegate: _this,
-              storage: _this.storage
-            }, cb);
+            return setupUIDGenerator(_this.storage, function(err) {
+              if (err != null) {
+                return cb("Failed to initialize UIDGenerator " + err);
+              }
+              return cb(null, null);
+            });
           }, function(cb) {
-            return new DataSource({
-              grid: grid,
-              level: 1,
-              nodeId: "yes_no",
-              storage: _this.storage
-            }, cb);
+            return _this.storage.get("root", cb);
           }
-        ], function(err, results) {
-          var keyboardInput, myDataSource, splitDataSource;
+        ], function(err, _arg) {
+          var ignored, rootDoc, rootNodeId;
+          ignored = _arg[0], rootDoc = _arg[1];
           if (err != null) {
             return cb(err);
           }
-          myDataSource = results[0], _this.yesNoDataSource = results[1];
-          splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-          _this.navigationController.push(splitDataSource);
-          keyboardInput = KeyboardInput.get(_this);
-          return cb(null, _this);
+          rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
+          console.log("rootNodeId", rootNodeId);
+          return async.parallel([
+            function(cb) {
+              return new DataSource({
+                grid: grid,
+                level: 1,
+                nodeId: rootNodeId,
+                delegate: _this,
+                storage: _this.storage
+              }, cb);
+            }, function(cb) {
+              return new DataSource({
+                grid: grid,
+                level: 1,
+                nodeId: "yes_no",
+                storage: _this.storage
+              }, cb);
+            }
+          ], function(err, results) {
+            var keyboardInput, myDataSource, splitDataSource;
+            if (err != null) {
+              return cb(err);
+            }
+            myDataSource = results[0], _this.yesNoDataSource = results[1];
+            splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
+            _this.navigationController.push(splitDataSource);
+            keyboardInput = KeyboardInput.get(_this);
+            return cb(null, _this);
+          });
         });
       });
     }

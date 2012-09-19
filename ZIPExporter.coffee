@@ -16,26 +16,36 @@ class ZIPExporter
     _export: (storage, cb) ->
         @data = {}
         @storage = storage
-        
-        @storage.get "root", (err, rootDoc) =>
-            if err? then return cb err
-            rootNodeId = rootDoc?.value or null
-            console.log "### Start exporting with rootNodeId", rootNodeId
-            if not rootNodeId? then return cb "rootNodeId not found"
+        async.parallel [
+            (cb) => 
+                @storage.get "root", (err, rootDoc) =>
+                    if err? then return cb err
+                    @data.root = rootDoc
+                    rootNodeId = rootDoc?.value or null
+                    @_exportTree(rootNodeId, cb)
             
-            @q = async.queue (id, cb) =>
-                @_visitNode id, cb
-            , 3
+            (cb) => @_exportTree("yes_no", cb)
+        ], (err, results) ->
+            cb err
+        
+    
+    _exportTree: (rootNodeId, cb) ->
+        console.log "### Start exporting with rootNodeId", rootNodeId
+        if not rootNodeId? then return cb "rootNodeId not found"
+        
+        vq = async.queue (id, cb) =>
+            @_visitNode vq, id, cb
+        , 3
 
-            @q.drain = =>
-                console.log "finished exporting"
-                console.log @data
-                cb null
-        
-            @q.push rootNodeId, (err, nodeId) ->
-                console.log "finished exporting root (id=#{nodeId}) with error #{err}"
+        vq.drain = =>
+            console.log "finished exporting"
+            console.log @data
+            cb null
+    
+        vq.push rootNodeId, (err, nodeId) ->
+            console.log "finished exporting root (id=#{nodeId}) with error #{err}"
             
-    _visitNode: (nodeId, cb) ->
+    _visitNode: (vq, nodeId, cb) ->
             async.parallel [
                 (cb) => @storage.get "node_#{nodeId}_cells", cb
                 (cb) => @storage.get "node_#{nodeId}_children", cb
@@ -48,7 +58,7 @@ class ZIPExporter
                     @data["node_#{nodeId}_children"] = children
                     for own position, childNodeId of children
                         console.log "starting exporting node #{childNodeId}"
-                        @q.push childNodeId, (err, nodeId) ->
+                        vq.push childNodeId, (err, nodeId) ->
                             console.log "finished exporting node #{nodeId} with error #{err}"
                 
                 if cells? and not _.isEmpty(cells)

@@ -9,7 +9,7 @@
 
 
 (function() {
-  var CouchStorage, LocalStorage, Storage,
+  var CouchStorage, FileStorage, LocalStorage, Storage, StorageFactory,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -37,8 +37,8 @@
 
     __extends(LocalStorage, _super);
 
-    function LocalStorage() {
-      return LocalStorage.__super__.constructor.apply(this, arguments);
+    function LocalStorage(cb) {
+      cb(null, this);
     }
 
     LocalStorage.prototype.toString = function() {
@@ -52,16 +52,12 @@
       if (s !== null) {
         doc = JSON.parse(s);
       }
-      return window.setTimeout(function() {
-        return cb(null, doc);
-      }, 10);
+      return cb(null, doc);
     };
 
     LocalStorage.prototype.save = function(id, doc, cb) {
       localStorage.setItem(id, doc !== null ? JSON.stringify(doc) : null);
-      return window.setTimeout(function() {
-        return cb(null);
-      }, 10);
+      return cb(null);
     };
 
     return LocalStorage;
@@ -72,10 +68,19 @@
 
     __extends(CouchStorage, _super);
 
-    function CouchStorage(serverUrl, dbname) {
+    function CouchStorage(serverUrl, dbname, cb) {
+      var _this = this;
       this.serverUrl = serverUrl;
       this.dbname = dbname;
       $.couch.urlPrefix = this.serverUrl;
+      $.couch.db(this.dbname).info({
+        success: function(data) {
+          return cb(null, _this);
+        },
+        error: function(err) {
+          return cb(err, null);
+        }
+      });
     }
 
     CouchStorage.prototype.toString = function() {
@@ -188,8 +193,96 @@
 
   })(Storage);
 
+  FileStorage = (function(_super) {
+
+    __extends(FileStorage, _super);
+
+    function FileStorage(filename, cb) {
+      var _this = this;
+      this.filename = filename;
+      $.ajax({
+        url: this.filename,
+        dataType: "text",
+        success: function(data) {
+          console.log(data);
+          _this.data = JSON.parse(data);
+          if (_this.data.root != null) {
+            return cb(null, _this);
+          } else {
+            return cb("no root found", null);
+          }
+        },
+        error: function(xhr, textStatus, err) {
+          return cb(err, null);
+        }
+      });
+    }
+
+    FileStorage.prototype.toString = function() {
+      return "File " + this.filename;
+    };
+
+    FileStorage.prototype.get = function(id, cb) {
+      return cb(null, this.data[id]);
+    };
+
+    FileStorage.prototype.save = function(id, doc, cb) {
+      this.data[id] = doc;
+      return cb(null);
+    };
+
+    return FileStorage;
+
+  })(Storage);
+
+  StorageFactory = (function() {
+
+    function StorageFactory() {}
+
+    StorageFactory.prototype.getBestStorage = function(cb) {
+      var errors,
+        _this = this;
+      errors = {};
+      return async.parallel([
+        function(cb) {
+          return new CouchStorage('http://localhost:5984', 'talkshow', function(err, result) {
+            errors.CouchStorage = err;
+            return cb(null, result);
+          });
+        }, function(cb) {
+          return new FileStorage('content.json', function(err, result) {
+            errors.FileStorage = err;
+            return cb(null, result);
+          });
+        }, function(cb) {
+          return new LocalStorage(function(err, result) {
+            errors.LocalStorage = err;
+            return cb(null, result);
+          });
+        }
+      ], function(err, results) {
+        var x, _i, _len;
+        console.log(errors);
+        for (_i = 0, _len = results.length; _i < _len; _i++) {
+          x = results[_i];
+          if (x != null) {
+            return cb(null, x);
+          }
+        }
+        return cb(errors);
+      });
+    };
+
+    return StorageFactory;
+
+  })();
+
   window.LocalStorage = LocalStorage;
 
   window.CouchStorage = CouchStorage;
+
+  window.FileStorage = FileStorage;
+
+  window.StorageFactory = StorageFactory;
 
 }).call(this);

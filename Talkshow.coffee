@@ -19,48 +19,50 @@ class Talkshow
     
     constructor: (cb) ->
         #@storage = new LocalStorage
-        @storage = new CouchStorage "http://localhost:5984", "talkshow"
-        
-        grid = new Grid 4, 2
-        @navigationController = new NavigationController grid
-        
-        async.parallel [
-            (cb) =>
-                setupUIDGenerator @storage, (err) =>
-                    if err? then return cb "Failed to initialize UIDGenerator #{err}"
-                    cb null, null
-            (cb) =>
-                @storage.get "root", cb
-        ], (err, [ignored, rootDoc]) =>
+        new StorageFactory().getBestStorage (err, result) =>
             if err? then return cb err
-            rootNodeId = rootDoc?.value or null
-            console.log "rootNodeId", rootNodeId
+            @storage = result
+            
+            grid = new Grid 4, 2
+            @navigationController = new NavigationController grid
         
             async.parallel [
                 (cb) =>
-                    new DataSource 
-                        grid: grid
-                        level: 1, 
-                        nodeId: rootNodeId
-                        delegate: this
-                        storage: @storage
-                    , cb
+                    setupUIDGenerator @storage, (err) =>
+                        if err? then return cb "Failed to initialize UIDGenerator #{err}"
+                        cb null, null
                 (cb) =>
-                     new DataSource 
-                        grid: grid,
-                        level: 1
-                        nodeId: "yes_no"
-                        storage: @storage
-                     , cb
-            ], (err, results) =>
+                    @storage.get "root", cb
+            ], (err, [ignored, rootDoc]) =>
                 if err? then return cb err
-                [myDataSource, @yesNoDataSource] = results
-                splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+                rootNodeId = rootDoc?.value or null
+                console.log "rootNodeId", rootNodeId
+        
+                async.parallel [
+                    (cb) =>
+                        new DataSource 
+                            grid: grid
+                            level: 1, 
+                            nodeId: rootNodeId
+                            delegate: this
+                            storage: @storage
+                        , cb
+                    (cb) =>
+                         new DataSource 
+                            grid: grid,
+                            level: 1
+                            nodeId: "yes_no"
+                            storage: @storage
+                         , cb
+                ], (err, results) =>
+                    if err? then return cb err
+                    [myDataSource, @yesNoDataSource] = results
+                    splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
-                @navigationController.push splitDataSource
+                    @navigationController.push splitDataSource
 
-                keyboardInput = KeyboardInput.get this
-                cb null, this
+                    keyboardInput = KeyboardInput.get this
+                    cb null, this
 
     enterCell: (x,y, cb) ->
         @navigationController.currentController().enterCell x,y, cb

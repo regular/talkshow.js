@@ -30,31 +30,46 @@
       var _this = this;
       this.data = {};
       this.storage = storage;
-      return this.storage.get("root", function(err, rootDoc) {
-        var rootNodeId;
-        if (err != null) {
-          return cb(err);
+      return async.parallel([
+        function(cb) {
+          return _this.storage.get("root", function(err, rootDoc) {
+            var rootNodeId;
+            if (err != null) {
+              return cb(err);
+            }
+            _this.data.root = rootDoc;
+            rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
+            return _this._exportTree(rootNodeId, cb);
+          });
+        }, function(cb) {
+          return _this._exportTree("yes_no", cb);
         }
-        rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
-        console.log("### Start exporting with rootNodeId", rootNodeId);
-        if (!(rootNodeId != null)) {
-          return cb("rootNodeId not found");
-        }
-        _this.q = async.queue(function(id, cb) {
-          return _this._visitNode(id, cb);
-        }, 3);
-        _this.q.drain = function() {
-          console.log("finished exporting");
-          console.log(_this.data);
-          return cb(null);
-        };
-        return _this.q.push(rootNodeId, function(err, nodeId) {
-          return console.log("finished exporting root (id=" + nodeId + ") with error " + err);
-        });
+      ], function(err, results) {
+        return cb(err);
       });
     };
 
-    ZIPExporter.prototype._visitNode = function(nodeId, cb) {
+    ZIPExporter.prototype._exportTree = function(rootNodeId, cb) {
+      var vq,
+        _this = this;
+      console.log("### Start exporting with rootNodeId", rootNodeId);
+      if (!(rootNodeId != null)) {
+        return cb("rootNodeId not found");
+      }
+      vq = async.queue(function(id, cb) {
+        return _this._visitNode(vq, id, cb);
+      }, 3);
+      vq.drain = function() {
+        console.log("finished exporting");
+        console.log(_this.data);
+        return cb(null);
+      };
+      return vq.push(rootNodeId, function(err, nodeId) {
+        return console.log("finished exporting root (id=" + nodeId + ") with error " + err);
+      });
+    };
+
+    ZIPExporter.prototype._visitNode = function(vq, nodeId, cb) {
       var _this = this;
       return async.parallel([
         function(cb) {
@@ -75,7 +90,7 @@
             if (!__hasProp.call(children, position)) continue;
             childNodeId = children[position];
             console.log("starting exporting node " + childNodeId);
-            _this.q.push(childNodeId, function(err, nodeId) {
+            vq.push(childNodeId, function(err, nodeId) {
               return console.log("finished exporting node " + nodeId + " with error " + err);
             });
           }

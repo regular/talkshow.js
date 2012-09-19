@@ -14,27 +14,31 @@ class Storage
     toString: -> "unkown Storage"
         
 class LocalStorage extends Storage
-    # TODO: remove async simulation timeout
-    
+    constructor: (cb) ->
+        cb null, this
+        
     toString: -> "HTML5 LocalStorage"
     
     get: (id, cb) ->
         s = localStorage.getItem id
         doc = null
         doc = JSON.parse(s) if s isnt null
-        window.setTimeout ->
-            cb null, doc
-        , 10
+        cb null, doc
         
     save: (id, doc, cb) ->
+        # TODO: handle out of space exception
         localStorage.setItem id, if doc isnt null then JSON.stringify(doc) else null
-        window.setTimeout ->
-            cb null
-        , 10
+        cb null
 
 class CouchStorage extends Storage
-    constructor: (@serverUrl, @dbname)->
+    constructor: (@serverUrl, @dbname, cb)->
         $.couch.urlPrefix = @serverUrl
+        
+        $.couch.db(@dbname).info
+            success: (data) =>
+                cb null, this
+            error: (err) =>
+                cb err, null
     
     toString: -> "CouchDB at #{@serverUrl}/#{@dbname}"
     
@@ -110,5 +114,53 @@ class CouchStorage extends Storage
                     error: (status) ->
                         cb status
 
+class FileStorage extends Storage
+    constructor: (@filename, cb) ->
+        $.ajax 
+            url: @filename
+            dataType: "text"
+            success: (data) =>
+                console.log data
+                @data = JSON.parse(data)
+                if @data.root?
+                    return cb null, this
+                else
+                    return cb "no root found", null
+            error: (xhr, textStatus, err) =>
+                cb err, null
+        
+    toString: -> "File #{@filename}"
+    
+    get: (id, cb) ->
+        cb null, @data[id]
+        
+    save: (id, doc, cb) ->
+        @data[id] = doc
+        cb null
+
+class StorageFactory
+    getBestStorage: (cb) ->
+        errors = {}
+        async.parallel [
+            (cb) =>
+                new CouchStorage 'http://localhost:5984', 'talkshow', (err, result) ->
+                    errors.CouchStorage = err
+                    cb null, result
+            (cb) =>
+                new FileStorage 'content.json', (err, result) ->
+                    errors.FileStorage = err
+                    cb null, result
+            (cb) =>
+                new LocalStorage (err, result) ->
+                    errors.LocalStorage = err
+                    cb null, result
+        ], (err, results) ->
+            console.log errors
+            for x in results
+                if x? then return cb null, x
+            cb errors
+
 window.LocalStorage = LocalStorage
 window.CouchStorage = CouchStorage
+window.FileStorage = FileStorage
+window.StorageFactory = StorageFactory
