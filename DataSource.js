@@ -218,7 +218,7 @@
           return _this.delegate.enteredCell(_this, {
             x: x,
             y: y
-          }, _this.level + 1, childNodeId, cb);
+          }, _this.level + 1, childNodeId, data, cb);
         } else {
           return cb(null);
         }

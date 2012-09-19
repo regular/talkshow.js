@@ -57,6 +57,7 @@ class Talkshow
                 ], (err, results) =>
                     if err? then return cb err
                     [myDataSource, @yesNoDataSource] = results
+                    myDataSource.navTitle = ">"
                     splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
                     @navigationController.push splitDataSource
@@ -70,8 +71,10 @@ class Talkshow
     pop: ->
         if @navigationController.count()>1
             @navigationController.pop()
+        myDataSource = @navigationController.currentController().ds2
+        $('#navBar').html myDataSource.navTitle
     
-    enteredCell: (dataSource, position, level, nodeId, cb) ->
+    enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
         new DataSource 
             grid: @grid
@@ -83,7 +86,8 @@ class Talkshow
             storage: @storage
         , (err, myDataSource) =>
             if err? then return cb err
-        
+            myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label
+            $('#navBar').html myDataSource.navTitle
             splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
             @navigationController.push splitDataSource
             cb null

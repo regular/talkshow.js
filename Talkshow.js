@@ -80,6 +80,7 @@
               return cb(err);
             }
             myDataSource = results[0], _this.yesNoDataSource = results[1];
+            myDataSource.navTitle = ">";
             splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
             _this.navigationController.push(splitDataSource);
             keyboardInput = KeyboardInput.get(_this);
@@ -94,12 +95,15 @@
     };
 
     Talkshow.prototype.pop = function() {
+      var myDataSource;
       if (this.navigationController.count() > 1) {
-        return this.navigationController.pop();
+        this.navigationController.pop();
       }
+      myDataSource = this.navigationController.currentController().ds2;
+      return $('#navBar').html(myDataSource.navTitle);
     };
 
-    Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cb) {
+    Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
       var _this = this;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
       return new DataSource({
@@ -115,6 +119,8 @@
         if (err != null) {
           return cb(err);
         }
+        myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label;
+        $('#navBar').html(myDataSource.navTitle);
         splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
         _this.navigationController.push(splitDataSource);
         return cb(null);

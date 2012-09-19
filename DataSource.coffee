@@ -143,7 +143,7 @@ class DataSource
                     return cb null
         
             if @delegate?
-                @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, cb
+                @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, data, cb
             else
                 cb null
     
