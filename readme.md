@@ -3,8 +3,6 @@ _a communication tool for non-speaking people_
 
 This is a HTML5 port of [Talkshow](https://github.com/regular/talkshow)
 
-[try (an old version) here](http://regular.github.com/talkshow.js/)
-
 Non-speaking people depend on special devices to communicate with the people that surround them. There are devices on the market that play pre-recorded sound samples by pressing a button and allow the user to change sample sets according to context. However, these special device are ridiculously expensive.
 
 With Talkshow, we try to provide a solution based solely on Open Source software that runs on a cheap Netbook with a touch screen.
