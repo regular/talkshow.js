@@ -36,7 +36,12 @@ html
             div
                 a#export Inhalte als Zip-Datei exportieren
         #settings.showInEditMode
-            ul#colors
+            div
+                ul#colors(style="display:none")
+            div
+                span Scanner Geschwindigkeit:
+                input#scannerDelay.preference(value="2000")
+                span Millisekunden pro Feld
             
         #navBar Home
         #grid
@@ -103,6 +108,13 @@ html
                         .choice Abbrechen
                         
 :stylus
+    #settings .preference
+        margin: -2px 10px
+        border-radius: 4px
+        border: none
+        width: 4em
+        text-align: right
+
     .dialog
         position: absolute
         width:50%

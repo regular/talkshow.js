@@ -14,34 +14,53 @@
       };
     }
 
-    Grid.prototype.reloadFromDataSource = function(dataSource) {
-      var td, tr, x, y, _fn, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _results;
+    Grid.prototype.reloadFromDataSource = function(dataSource, cb) {
+      var q, td, tr, x, y, _i, _ref, _results,
+        _this = this;
       console.log("Loading data from source");
+      if (cb === void 0) {
+        console.trace();
+      }
       this.dataSource = dataSource;
+      q = async.queue(function(_arg, cb) {
+        var td, x, y;
+        td = _arg.td, x = _arg.x, y = _arg.y;
+        return dataSource.cellForPosition(x, y, function(err, newTd) {
+          if (!(err != null)) {
+            td.replaceWith(newTd);
+          }
+          return cb(null);
+        });
+      }, 3);
+      q.drain = function() {
+        var x, y, _i, _j, _ref, _ref1;
+        for (y = _i = 0, _ref = _this.rows; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
+          _this.positions.vert.push($("#grid table tr").eq(y).offset().top);
+        }
+        for (x = _j = 0, _ref1 = _this.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
+          _this.positions.horiz.push($("#grid table tr").eq(0).find("td").eq(x).offset().left);
+        }
+        return cb(null);
+      };
       $("#grid").html("<table>");
+      _results = [];
       for (y = _i = 0, _ref = this.rows; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
         tr = $("<tr>");
-        _fn = function(td) {
-          var _this = this;
-          return dataSource.cellForPosition(x, y, function(err, newTd) {
-            if (!(err != null)) {
-              return td.replaceWith(newTd);
-            }
-          });
-        };
-        for (x = _j = 0, _ref1 = this.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
-          td = $("<td>");
-          tr.append(td);
-          _fn(td);
-        }
         $("#grid table").append(tr);
-      }
-      for (y = _k = 0, _ref2 = this.rows; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; y = 0 <= _ref2 ? ++_k : --_k) {
-        this.positions.vert.push($("#grid table tr").eq(y).offset().top);
-      }
-      _results = [];
-      for (x = _l = 0, _ref3 = this.cols; 0 <= _ref3 ? _l < _ref3 : _l > _ref3; x = 0 <= _ref3 ? ++_l : --_l) {
-        _results.push(this.positions.horiz.push($("#grid table tr").eq(0).find("td").eq(x).offset().left));
+        _results.push((function() {
+          var _j, _ref1, _results1;
+          _results1 = [];
+          for (x = _j = 0, _ref1 = this.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
+            td = $("<td>");
+            tr.append(td);
+            _results1.push(q.push({
+              td: td,
+              x: x,
+              y: y
+            }));
+          }
+          return _results1;
+        }).call(this));
       }
       return _results;
     };

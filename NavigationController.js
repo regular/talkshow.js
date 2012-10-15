@@ -9,25 +9,16 @@
       this.controllerStack = [];
     }
 
-    NavigationController.prototype.push = function(newSource) {
+    NavigationController.prototype.push = function(newSource, cb) {
       this.controllerStack.push(newSource);
-      return this.grid.reloadFromDataSource(newSource);
+      return this.grid.reloadFromDataSource(newSource, cb);
     };
 
-    NavigationController.prototype.pop = function() {
+    NavigationController.prototype.pop = function(cb) {
       var lastController;
       this.controllerStack.pop();
       lastController = _(this.controllerStack).last();
-      return this.grid.reloadFromDataSource(lastController);
-    };
-
-    NavigationController.prototype.popToRoot = function() {
-      var _results;
-      _results = [];
-      while (this.controllerStack.length > 1) {
-        _results.push(this.pop());
-      }
-      return _results;
+      return this.grid.reloadFromDataSource(lastController, cb);
     };
 
     NavigationController.prototype.count = function() {

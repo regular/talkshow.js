@@ -77,16 +77,18 @@
               }, cb);
             }
           ], function(err, results) {
-            var keyboardInput, myDataSource, splitDataSource;
+            var myDataSource, splitDataSource;
             if (err != null) {
               return cb(err);
             }
             myDataSource = results[0], _this.yesNoDataSource = results[1];
             myDataSource.navTitle = ">";
             splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-            _this.navigationController.push(splitDataSource);
-            keyboardInput = KeyboardInput.get(_this);
-            return cb(null, _this);
+            return _this.navigationController.push(splitDataSource, function() {
+              var keyboardInput;
+              keyboardInput = KeyboardInput.get(_this);
+              return cb(null, _this);
+            });
           });
         });
       });
@@ -96,13 +98,18 @@
       return this.navigationController.currentController().enterCell(x, y, cb);
     };
 
-    Talkshow.prototype.pop = function() {
-      var myDataSource;
+    Talkshow.prototype.pop = function(cb) {
+      var _this = this;
       if (this.navigationController.count() > 1) {
-        this.navigationController.pop();
+        return this.navigationController.pop(function() {
+          var myDataSource;
+          myDataSource = _this.navigationController.currentController().ds2;
+          $('#navBar').html(myDataSource.navTitle);
+          return cb(null);
+        });
+      } else {
+        return cb(null);
       }
-      myDataSource = this.navigationController.currentController().ds2;
-      return $('#navBar').html(myDataSource.navTitle);
     };
 
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
@@ -124,8 +131,9 @@
         myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label;
         $('#navBar').html(myDataSource.navTitle);
         splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-        _this.navigationController.push(splitDataSource);
-        return cb(null);
+        return _this.navigationController.push(splitDataSource, function() {
+          return cb(null);
+        });
       });
     };
 

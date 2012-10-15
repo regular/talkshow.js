@@ -4,29 +4,35 @@ class Grid
             vert: []
             horiz: []
 
-    reloadFromDataSource: (dataSource) ->
+    reloadFromDataSource: (dataSource, cb) ->
         console.log "Loading data from source"
+        if cb is undefined 
+            console.trace()
+            
         @dataSource = dataSource
-        
+
+        q = async.queue ({td,x,y}, cb) ->
+            dataSource.cellForPosition x,y, (err, newTd) ->
+                if not err? then td.replaceWith newTd
+                cb null
+        , 3
+            
+        q.drain = =>
+            for y in [0...@rows]
+                @positions.vert.push $("#grid table tr").eq(y).offset().top
+
+            for x in [0...@cols]
+                @positions.horiz.push $("#grid table tr").eq(0).find("td").eq(x).offset().left
+            cb null
+            
         $("#grid").html("<table>")
         for y in [0...@rows]
             tr = $("<tr>")
+            $("#grid table").append tr
             for x in [0...@cols]
                 td = $ "<td>"
                 tr.append td
-                do (td) ->
-                    dataSource.cellForPosition x,y, (err, newTd) =>
-                        if not err?
-                            td.replaceWith newTd
-            
-            $("#grid table").append tr
-
-        for y in [0...@rows]
-            @positions.vert.push $("#grid table tr").eq(y).offset().top
-
-        for x in [0...@cols]
-            @positions.horiz.push $("#grid table tr").eq(0).find("td").eq(x).offset().left
-
+                q.push {td: td, x:x, y:y}
     
     zoomIntoCell: (x,y,cb) ->
         cb()

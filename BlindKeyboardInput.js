@@ -35,7 +35,9 @@
         if (_this.modalKeyHandlers.length !== 0) {
           return (_ref = _(_this.modalKeyHandlers).last()) != null ? _ref.handleKey(e) : void 0;
         } else {
-          return _this.handleKey(e);
+          if (!isEditMode()) {
+            return _this.handleKey(e);
+          }
         }
       });
       this.setFocusPosition(0, 0);
@@ -59,9 +61,13 @@
     };
 
     _BlindKeyboardInput.prototype.playNavigationSound = function() {
-      return $(".keyboardFocus audio").each(function() {
-        return this.play();
-      });
+      if ($(".keyboardFocus audio").attr('src') != null) {
+        $(".keyboardFocus audio").each(function() {
+          return this.play();
+        });
+        return true;
+      }
+      return false;
     };
 
     _BlindKeyboardInput.prototype.handleKey = function(e) {
@@ -79,7 +85,9 @@
             this.setFocusPosition(0, 1);
             this.playNavigationSound();
           } else {
-            this.pop();
+            this.pop(function() {
+              return null;
+            });
           }
           break;
         case 'M':
@@ -115,21 +123,40 @@
       return false;
     };
 
+    _BlindKeyboardInput.prototype.getScannerDelay = function() {
+      return parseInt($("#scannerDelay").val() || 1000);
+    };
+
     _BlindKeyboardInput.prototype.startTimer = function() {
       var timerCallback,
         _this = this;
       this.stopTimer();
       timerCallback = function() {
-        _this.timeoutID = window.setTimeout(timerCallback, 1000);
-        _this.splitStep(1);
-        return _this.playNavigationSound();
+        var played, startField, _results;
+        _this.timeoutID = window.setTimeout(timerCallback, _this.getScannerDelay());
+        startField = $(".keyboardFocus")[0];
+        played = false;
+        _results = [];
+        while (!played) {
+          _this.splitStep(1);
+          played = _this.playNavigationSound();
+          if (startField === $(".keyboardFocus")[0]) {
+            break;
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       };
-      return this.timeoutID = window.setTimeout(timerCallback, 1000);
+      return this.timeoutID = window.setTimeout(timerCallback, this.getScannerDelay());
     };
 
     _BlindKeyboardInput.prototype.stopTimer = function() {
-      console.log("STOP timer");
-      return window.clearTimeout(this.timeoutID);
+      if (this.timeoutID != null) {
+        console.log("STOP timer");
+        window.clearTimeout(this.timeoutID);
+        return this.timeoutID = null;
+      }
     };
 
     _BlindKeyboardInput.prototype.enter = function() {
@@ -138,23 +165,25 @@
       this.stopTimer();
       focusPos = this.focusPosition();
       if (focusPos != null) {
-        this.startTimer();
         return this.delegate.enterCell(focusPos.left, focusPos.top, function(err) {
+          console.log("set focus pos to 1/0");
           _this.setFocusPosition(1, 0);
-          return _this.playNavigationSound();
+          _this.playNavigationSound();
+          return _this.startTimer();
         });
       }
     };
 
-    _BlindKeyboardInput.prototype.pop = function() {
-      var _ref;
+    _BlindKeyboardInput.prototype.pop = function(cb) {
+      var _ref,
+        _this = this;
       this.stopTimer();
-      if ((_ref = this.delegate) != null) {
-        _ref.pop();
-      }
-      this.setFocusPosition(1, 0);
-      this.playNavigationSound();
-      return this.startTimer();
+      return (_ref = this.delegate) != null ? _ref.pop(function() {
+        _this.setFocusPosition(1, 0);
+        _this.playNavigationSound();
+        _this.startTimer();
+        return cb(null);
+      }) : void 0;
     };
 
     _BlindKeyboardInput.prototype.focusPosition = function() {
@@ -177,7 +206,7 @@
     };
 
     _BlindKeyboardInput.prototype.setFocusPosition = function(x, y) {
-      $("td").removeClass("keyboardFocus");
+      $("#grid td").removeClass("keyboardFocus");
       return $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus");
     };
 

@@ -19,7 +19,8 @@ class _BlindKeyboardInput
             if @modalKeyHandlers.length isnt 0
                 _(@modalKeyHandlers).last()?.handleKey e
             else
-                @handleKey e
+                if not isEditMode()
+                    @handleKey e
             
         # comment this if you don't want the keyboard
         # focus to be visible initially
@@ -39,7 +40,10 @@ class _BlindKeyboardInput
         return @focusPosition().left is 0
     
     playNavigationSound: ->
-        $(".keyboardFocus audio").each ()-> @play()
+        if $(".keyboardFocus audio").attr('src')?
+            $(".keyboardFocus audio").each -> @play()
+            return true
+        return false
     
     handleKey: (e) =>
         # console.log(e.keyCode);
@@ -57,7 +61,7 @@ class _BlindKeyboardInput
                     @setFocusPosition 0, 1
                     @playNavigationSound()
                 else
-                    @pop()
+                    @pop -> null
 
             when 'M'
                 if @isInMenu()
@@ -97,33 +101,45 @@ class _BlindKeyboardInput
 
         return false
 
+    getScannerDelay: () ->
+        parseInt( $("#scannerDelay").val() or 1000)
+
     startTimer: ->
         @stopTimer()
-        timerCallback = ()=>
-            @timeoutID = window.setTimeout timerCallback, 1000
-            @splitStep 1
-            @playNavigationSound()
-        @timeoutID = window.setTimeout timerCallback, 1000
+        timerCallback = =>
+            @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
+            startField = $(".keyboardFocus")[0]
+            played = false
+            while not played 
+                @splitStep 1
+                played = @playNavigationSound()
+                if startField is $(".keyboardFocus")[0]
+                    break
+        @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
         
     stopTimer: ->
-        console.log "STOP timer"
-        window.clearTimeout @timeoutID
+        if @timeoutID?
+            console.log "STOP timer"
+            window.clearTimeout @timeoutID
+            @timeoutID = null
 
     enter: ->
         @stopTimer()
         focusPos = @focusPosition()
         if focusPos?
-            @startTimer()
             @delegate.enterCell focusPos.left, focusPos.top, (err) =>
+                console.log "set focus pos to 1/0"
                 @setFocusPosition 1 ,0
                 @playNavigationSound()
-            
-    pop: ->
+                @startTimer()
+
+    pop: (cb) ->
         @stopTimer()
-        @delegate?.pop()
-        @setFocusPosition 1 ,0
-        @playNavigationSound()
-        @startTimer()
+        @delegate?.pop =>
+            @setFocusPosition 1 ,0
+            @playNavigationSound()
+            @startTimer()
+            cb null
 
     focusPosition: () ->
         if $(".keyboardFocus").length == 1
@@ -144,7 +160,7 @@ class _BlindKeyboardInput
             }
 
     setFocusPosition: (x,y) ->
-        $("td").removeClass("keyboardFocus")
+        $("#grid td").removeClass("keyboardFocus")
         $("#grid tr").eq(y).find("td").eq(x).addClass("keyboardFocus")
 
     move: (dx, dy) ->

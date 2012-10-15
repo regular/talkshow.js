@@ -62,19 +62,21 @@ class Talkshow
                     myDataSource.navTitle = ">"
                     splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
 
-                    @navigationController.push splitDataSource
-
-                    keyboardInput = KeyboardInput.get this
-                    cb null, this
+                    @navigationController.push splitDataSource, =>
+                        keyboardInput = KeyboardInput.get this
+                        cb null, this
 
     enterCell: (x,y, cb) ->
         @navigationController.currentController().enterCell x,y, cb
     
-    pop: ->
+    pop: (cb) ->
         if @navigationController.count()>1
-            @navigationController.pop()
-        myDataSource = @navigationController.currentController().ds2
-        $('#navBar').html myDataSource.navTitle
+            @navigationController.pop =>
+                myDataSource = @navigationController.currentController().ds2
+                $('#navBar').html myDataSource.navTitle
+                cb null
+        else
+            cb null
     
     enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
@@ -91,7 +93,7 @@ class Talkshow
             myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label
             $('#navBar').html myDataSource.navTitle
             splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
-            @navigationController.push splitDataSource
-            cb null
+            @navigationController.push splitDataSource, ->
+                cb null
     
 window.Talkshow = Talkshow

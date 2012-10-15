@@ -1,7 +1,18 @@
 class Settings
    
     constructor: (@storage, cb) ->
-        @loadColors (err, colors) =>
+        $("#settings input.preference").focus ->
+            $(this).css("background-color", "yellow")
+        self = this
+        $("#settings input.preference").change ->
+            self.savePreferences (err) =>
+                if err?
+                    console.log err
+                else
+                    $(this).css("background-color", "inherit")
+
+        
+        @load (err) =>
             if $("#colors li").length is 0
                 @addDefaultColors()
                 @insertAddButton()
@@ -46,12 +57,35 @@ class Settings
         ).join(",") + "]"
         @storage.save "colors", {rgb: JSON.parse(colorJSON)}, cb
 
+    load: (cb) ->
+        async.parallel [
+            (cb) => @loadColors(cb)
+            (cb) => @loadPreferences(cb)
+        ], cb
+
+    loadPreferences: (cb) ->
+        @storage.get "preferences", (err, prefs) =>
+            if prefs?
+                for own key, value of prefs
+                    el = $("input##{key}.preference")
+                    if el?
+                        $(el).attr('value', value)
+                        console.log el, value
+            cb null, prefs
+            
+    savePreferences: (cb) ->
+        prefs = {}
+        $("#settings input.preference").each (i, el) =>
+            prefs[$(el).attr('id')] = $(el).attr('value')
+        console.log  prefs
+        @storage.save "preferences", prefs, cb
+
     loadColors: (cb) ->
         @storage.get "colors", (err, colors) =>
             if colors?.rgb?
                 for c in colors.rgb
                     $("#colors").append $("<li>")
                         .css "background-color", @CSSColorFromArray c
-            cb err, colors
+            cb null, colors
 
 window.Settings = Settings
