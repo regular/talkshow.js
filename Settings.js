@@ -4,18 +4,34 @@
 
   Settings = (function() {
 
-    function Settings() {
+    function Settings(storage, cb) {
       var _this = this;
-      this.loadColors();
-      if ($("#colors li").length === 0) {
-        this.addDefaultColors();
-        this.saveColors();
-      }
-      $("#colors").append($("<li>").addClass("addButton").html("+").click(function() {
-        $("<li>").css("background-color", "rgb(0,0,0)").insertBefore("#colors .addButton");
-        return _this.saveColors();
-      }));
+      this.storage = storage;
+      this.loadColors(function(err, colors) {
+        if ($("#colors li").length === 0) {
+          _this.addDefaultColors();
+          _this.insertAddButton();
+          return _this.saveColors(function(err, res) {
+            return cb(null, _this);
+          });
+        } else {
+          _this.insertAddButton();
+          return cb(null, _this);
+        }
+      });
     }
+
+    Settings.prototype.insertAddButton = function() {
+      var _this = this;
+      return $("#colors").append($("<li>").addClass("addButton").html("+").click(function() {
+        $("<li>").css("background-color", "rgb(0,0,0)").insertBefore("#colors .addButton");
+        return _this.saveColors(function(err, res) {
+          if (err != null) {
+            return console.log(err);
+          }
+        });
+      }));
+    };
 
     Settings.prototype.CSSColorFromArray = function(c) {
       return "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
@@ -28,12 +44,12 @@
       _results = [];
       for (_i = 0, _len = colors.length; _i < _len; _i++) {
         c = colors[_i];
-        _results.push($("#colors").append($("<li>").css("background-color", CSSColorFromArray(c))));
+        _results.push($("#colors").append($("<li>").css("background-color", this.CSSColorFromArray(c))));
       }
       return _results;
     };
 
-    Settings.prototype.saveColors = function() {
+    Settings.prototype.saveColors = function(cb) {
       var colorJSON, element, s;
       colorJSON = "[" + ((function() {
         var _i, _len, _ref, _results;
@@ -48,21 +64,24 @@
         }
         return _results;
       })()).join(",") + "]";
-      return localStorage.setItem("colors", colorJSON);
+      return this.storage.save("colors", {
+        rgb: JSON.parse(colorJSON)
+      }, cb);
     };
 
-    Settings.prototype.loadColors = function() {
-      var c, colorJSON, colors, _i, _len, _results;
-      colorJSON = localStorage.getItem("colors");
-      if (colorJSON != null) {
-        colors = JSON.parse(colorJSON);
-        _results = [];
-        for (_i = 0, _len = colors.length; _i < _len; _i++) {
-          c = colors[_i];
-          _results.push($("#colors").append($("<li>").css("background-color", CSSColorFromArray(c))));
+    Settings.prototype.loadColors = function(cb) {
+      var _this = this;
+      return this.storage.get("colors", function(err, colors) {
+        var c, _i, _len, _ref;
+        if ((colors != null ? colors.rgb : void 0) != null) {
+          _ref = colors.rgb;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            c = _ref[_i];
+            $("#colors").append($("<li>").css("background-color", _this.CSSColorFromArray(c)));
+          }
         }
-        return _results;
-      }
+        return cb(err, colors);
+      });
     };
 
     return Settings;

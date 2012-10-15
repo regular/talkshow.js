@@ -48,10 +48,12 @@
             });
           }, function(cb) {
             return _this.storage.get("root", cb);
+          }, function(cb) {
+            return new Settings(_this.storage, cb);
           }
         ], function(err, _arg) {
-          var ignored, rootDoc, rootNodeId;
-          ignored = _arg[0], rootDoc = _arg[1];
+          var ignored, rootDoc, rootNodeId, settings;
+          ignored = _arg[0], rootDoc = _arg[1], settings = _arg[2];
           if (err != null) {
             return cb(err);
           }

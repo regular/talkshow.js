@@ -33,7 +33,9 @@ class Talkshow
                         cb null, null
                 (cb) =>
                     @storage.get "root", cb
-            ], (err, [ignored, rootDoc]) =>
+                (cb) =>
+                    new Settings @storage, cb
+            ], (err, [ignored, rootDoc, settings]) =>
                 if err? then return cb err
                 rootNodeId = rootDoc?.value or null
                 console.log "rootNodeId", rootNodeId

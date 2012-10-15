@@ -1,13 +1,17 @@
 class Settings
    
-    constructor: () ->
-        # -- edit mode
-        @loadColors()
-
-        if $("#colors li").length is 0
-            @addDefaultColors()
-            @saveColors()
-
+    constructor: (@storage, cb) ->
+        @loadColors (err, colors) =>
+            if $("#colors li").length is 0
+                @addDefaultColors()
+                @insertAddButton()
+                @saveColors (err, res) =>
+                    cb null, this
+            else
+                @insertAddButton()
+                cb null, this
+            
+    insertAddButton: () ->
         $("#colors").append $("<li>")
             .addClass("addButton")
             .html("+")
@@ -15,7 +19,8 @@ class Settings
                 $("<li>")
                     .css("background-color", "rgb(0,0,0)")
                 .insertBefore("#colors .addButton")
-                @saveColors()
+                @saveColors (err, res) ->
+                    if err? then console.log err
     
     CSSColorFromArray: (c) ->
         "rgb(#{c[0]},#{c[1]},#{c[2]})"
@@ -30,23 +35,23 @@ class Settings
     
         for c in colors
             $("#colors").append $("<li>")
-                .css "background-color", CSSColorFromArray c
+                .css "background-color", @CSSColorFromArray c
 
-    saveColors: () ->        
+    saveColors: (cb) ->
         colorJSON = "[" + (for element in $("#colors li").not(".addButton")
             s = $(element).css "background-color"
             s = s.replace("rgb(", "[")
             s = s.replace("rgba(", "[")
             s = s.replace(")", "]")
         ).join(",") + "]"
-        localStorage.setItem "colors", colorJSON
+        @storage.save "colors", {rgb: JSON.parse(colorJSON)}, cb
 
-    loadColors: () ->
-        colorJSON = localStorage.getItem "colors"
-        if colorJSON?
-            colors = JSON.parse colorJSON
-            for c in colors
-                $("#colors").append $("<li>")
-                    .css "background-color", CSSColorFromArray c
+    loadColors: (cb) ->
+        @storage.get "colors", (err, colors) =>
+            if colors?.rgb?
+                for c in colors.rgb
+                    $("#colors").append $("<li>")
+                        .css "background-color", @CSSColorFromArray c
+            cb err, colors
 
 window.Settings = Settings
