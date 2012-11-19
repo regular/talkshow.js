@@ -44,6 +44,11 @@ class CellFactory
         
         cell.find(".iconbar .#{aspect}.iconbarItem")[if dataUri then 'show' else 'hide']()
         
+        if aspect is "navigationSound" and dataUri
+            # if it has a nav sound then shaw the always show the cell
+            # (otherwise it is in edit mode only)
+            cell.removeClass "showInEditMode"
+        
         switch aspect
             when 'background'
                 cell.css 'background-image', if dataUri then "url(#{dataUri})" else 'none'
@@ -122,6 +127,7 @@ class CellFactory
         self = this
         
         cell = $('<td>')
+            .addClass("showInEditMode")
             .append(@makeIconBar data)
             .append(audio)
             .append(image)

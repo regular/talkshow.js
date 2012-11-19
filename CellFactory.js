@@ -57,6 +57,9 @@
       icon = cell.children('.icon');
       audio = cell.find('audio');
       cell.find(".iconbar ." + aspect + ".iconbarItem")[dataUri ? 'show' : 'hide']();
+      if (aspect === "navigationSound" && dataUri) {
+        cell.removeClass("showInEditMode");
+      }
       switch (aspect) {
         case 'background':
           return cell.css('background-image', dataUri ? "url(" + dataUri + ")" : 'none');
@@ -154,7 +157,7 @@
       image = $('<img>').addClass("icon");
       audio = $('<audio>');
       self = this;
-      cell = $('<td>').append(this.makeIconBar(data)).append(audio).append(image).append(this.makeLabel(label)).css('background-color', color);
+      cell = $('<td>').addClass("showInEditMode").append(this.makeIconBar(data)).append(audio).append(image).append(this.makeLabel(label)).css('background-color', color);
       cell.bind('dragenter', function(evt) {
         $(this).addClass('dragTarget');
         evt.stopPropagation();

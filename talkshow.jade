@@ -66,11 +66,17 @@ html
                         .choice(type="back") Zurück (R)
 
             .soundDropped
-                .dialog
+                .dialog(lang="de")
                     .title Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?
                     .choice(type="navigationSound") Navigationsansage
                     .choice(type="sound") Musik/Hörbuch
                     .choice Abbrechen
+
+                // .dialog(lang="en")
+                //     .title Is this sound file a navigation sound for visually impaired users or music/audio book?
+                //     .choice(type="navigationSound") Navigation Sound
+                //     .choice(type="sound") Music or Audio book
+                //     .choice Cancel
 
             .imageDropped
                 .dialog
@@ -190,7 +196,11 @@ html
     
     body:not([class=editMode]) .showInEditMode
         display: none
-    
+
+    body:not([class=editMode]) td.showInEditMode
+        display: table-cell
+        opacity: 0.1
+
     #grid
         margin: 50px 50px
         height:800px
