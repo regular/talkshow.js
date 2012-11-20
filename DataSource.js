@@ -23,7 +23,7 @@
         cellChanged: function(cell, cb) {
           return _this.save(cell, "cell", cb);
         }
-      });
+      }, args);
       this.initialize(cb);
     }
 

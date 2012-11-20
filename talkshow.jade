@@ -38,6 +38,7 @@ html
                 span#storageIdentifier
             div
                 a#export Inhalte als Zip-Datei exportieren
+                
         #settings.showInEditMode
             div
                 ul#colors(style="display:none")
@@ -285,6 +286,17 @@ html
 
 :coffeescript
     $ ->
+    
+        getQuery = ->
+            result = {}
+            queryString = location.search.substring(1)
+            re = /([^&=]+)=([^&]*)/g
+
+            while m = re.exec(queryString)
+                result[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
+
+            return result
+    
         $("#editSwitch").change ->
             if $(this).attr("checked")
                 $("body").addClass("editMode")
@@ -303,7 +315,13 @@ html
             
         $(".dialog").hide()
         
+        query = getQuery()
         accessibilityMode = new AccessibilityModeNavCol()
+        
+        if query.mode is "shabanaj"
+            accessibilityMode = new AccessibilityModeShabanaj()
+        else if query.mode is "plain"
+            accessibilityMode = new AccessibilityModePlain()
         
         talkshow = new Talkshow accessibilityMode, (err) ->
             if err

@@ -17,6 +17,7 @@ class DataSource
 
             cellChanged: (cell, cb) =>
                 @save cell, "cell", cb
+        , args
 
         @initialize cb
             

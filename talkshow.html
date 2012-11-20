@@ -169,7 +169,17 @@ td.dragTarget {
 (function() {
 
   $(function() {
-    var accessibilityMode, talkshow;
+    var accessibilityMode, getQuery, query, talkshow;
+    getQuery = function() {
+      var m, queryString, re, result;
+      result = {};
+      queryString = location.search.substring(1);
+      re = /([^&=]+)=([^&]*)/g;
+      while (m = re.exec(queryString)) {
+        result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+      }
+      return result;
+    };
     $("#editSwitch").change(function() {
       if ($(this).attr("checked")) {
         return $("body").addClass("editMode");
@@ -189,7 +199,13 @@ td.dragTarget {
       });
     });
     $(".dialog").hide();
+    query = getQuery();
     accessibilityMode = new AccessibilityModeNavCol();
+    if (query.mode === "shabanaj") {
+      accessibilityMode = new AccessibilityModeShabanaj();
+    } else if (query.mode === "plain") {
+      accessibilityMode = new AccessibilityModePlain();
+    }
     return talkshow = new Talkshow(accessibilityMode, function(err) {
       if (err) {
         return $("body").html("Failed to initialize Talkshow: " + err);
