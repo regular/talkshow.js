@@ -22,7 +22,8 @@ html
         script(src='ImagePlayer.js')
         script(src='Storage.js')
         script(src='ZIPExporter.js')
-        script(src='AccessibilityMode.js')
+        script(src='AccessibilityModeShabanaj.js')
+        script(src='AccessibilityModePlain.js')
         script(src='Talkshow.js')
         
     body
@@ -301,7 +302,7 @@ html
             
         $(".dialog").hide()
         
-        accessibilityMode = new AccessibilityMode()
+        accessibilityMode = new AccessibilityModePlain()
         
         talkshow = new Talkshow accessibilityMode, (err) ->
             if err

@@ -24,7 +24,8 @@ class Talkshow
             if err? then return cb err
             @storage = result
             
-            grid = new Grid 4, 2
+            {columns, rows} = @accessibilityMode.gridSize
+            grid = new Grid columns, rows
             @navigationController = new NavigationController grid
         
             async.parallel [

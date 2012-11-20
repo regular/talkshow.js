@@ -32,12 +32,13 @@
       var _this = this;
       this.accessibilityMode = accessibilityMode;
       new StorageFactory().getBestStorage(function(err, result) {
-        var grid;
+        var columns, grid, rows, _ref;
         if (err != null) {
           return cb(err);
         }
         _this.storage = result;
-        grid = new Grid(4, 2);
+        _ref = _this.accessibilityMode.gridSize, columns = _ref.columns, rows = _ref.rows;
+        grid = new Grid(columns, rows);
         _this.navigationController = new NavigationController(grid);
         return async.parallel([
           function(cb) {

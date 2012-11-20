@@ -1,5 +1,8 @@
-class AccessibilityMode
-    
+class AccessibilityModeShabanaj
+    @gridSize: 
+        columns: 4
+        rows: 2
+        
     initializeDataSource: (options, cb) ->
         new DataSource 
             grid: options.grid
@@ -31,4 +34,4 @@ class AccessibilityMode
             myDataSource.splitDataSource = splitDataSource
             cb null, splitDataSource
 
-window.AccessibilityMode = AccessibilityMode
+window.AccessibilityModeShabanaj = AccessibilityModeShabanaj
