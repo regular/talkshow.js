@@ -21,6 +21,17 @@
       return this.grid.reloadFromDataSource(lastController, cb);
     };
 
+    NavigationController.prototype.popToRoot = function(cb) {
+      var _this = this;
+      if (this.controllerStack.length > 1) {
+        return this.pop(function() {
+          return _this.popToRoot(cb);
+        });
+      } else {
+        return cb(null);
+      }
+    };
+
     NavigationController.prototype.count = function() {
       return this.controllerStack.length;
     };

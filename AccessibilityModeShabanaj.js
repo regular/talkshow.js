@@ -6,7 +6,7 @@
 
     function AccessibilityModeShabanaj() {}
 
-    AccessibilityModeShabanaj.gridSize = {
+    AccessibilityModeShabanaj.prototype.gridSize = {
       columns: 4,
       rows: 2
     };
@@ -41,6 +41,7 @@
       if (options.parent != null) {
         options.parent = options.parent.ds2;
       }
+      options.userIsBlind = true;
       return new DataSource(options, function(err, myDataSource) {
         var splitDataSource;
         if (err != null) {

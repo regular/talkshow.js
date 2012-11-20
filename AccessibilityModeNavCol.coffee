@@ -1,22 +1,30 @@
-class AccessibilityModeShabanaj
+class AccessibilityModeNavCol
     gridSize: 
         columns: 4
-        rows: 2
+        rows: 3
         
     initializeDataSource: (options, cb) ->
-        new DataSource 
+        new DataSource
+            delegate: this
             grid: options.grid
             level: 1
-            nodeId: "yes_no"
+            nodeId: "navigation_column"
             storage: options.storage
-        , (err, @yesNoDataSource) =>
+        , (err, @navDataSource) =>
             if err? then return cb err
             options.level = 1
             @makeDataSource options, cb
     
     enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
-        dataSource = dataSource.splitDataSource
-        @delegate?.enteredCell dataSource, position, level, nodeId, cellData, cb
+        if dataSource is @navDataSource
+            console.log "NavCol: #{position.y}"
+            if position.y == 0
+                @delegate.popToRoot cb
+            if position.y == 1
+                @delegate.pop cb
+        else        
+            dataSource = dataSource.splitDataSource
+            @delegate?.enteredCell dataSource, position, level, nodeId, cellData, cb
     
     makeDataSource: (options, cb) ->
         # we proxy enteredCell calls to correct the sender
@@ -28,11 +36,10 @@ class AccessibilityModeShabanaj
         if options.parent?
             options.parent = options.parent.ds2
         
-        options.userIsBlind = true
         new DataSource options, (err, myDataSource) =>
             if err? then return cb err
-            splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+            splitDataSource = new SplitDataSource @navDataSource, myDataSource, 1
             myDataSource.splitDataSource = splitDataSource
             cb null, splitDataSource
 
-window.AccessibilityModeShabanaj = AccessibilityModeShabanaj
+window.AccessibilityModeNavCol = AccessibilityModeNavCol

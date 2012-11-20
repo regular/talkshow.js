@@ -12,9 +12,12 @@ class NavigationController
         lastController =_(@controllerStack).last()
         @grid.reloadFromDataSource lastController, cb
     
-    # popToRoot: () ->
-    #     while @controllerStack.length>1 
-    #         @pop()
+    popToRoot: (cb) ->
+        if @controllerStack.length > 1 
+            @pop =>
+                @popToRoot cb
+        else
+            cb null
     
     count: ()-> @controllerStack.length
     currentController: ()-> return _(@controllerStack).last()

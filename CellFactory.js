@@ -4,8 +4,9 @@
 
   CellFactory = (function() {
 
-    function CellFactory(delegate) {
+    function CellFactory(delegate, options) {
       this.delegate = delegate;
+      this.options = options;
     }
 
     CellFactory.prototype.makeLabel = function(text) {
@@ -152,12 +153,15 @@
     };
 
     CellFactory.prototype.makeCell = function(data, color) {
-      var aspect, audio, cell, image, label, self, _i, _len, _ref, _ref1;
+      var aspect, audio, cell, image, label, self, _i, _len, _ref, _ref1, _ref2;
       label = (_ref = data.label) != null ? _ref : 'n/a';
       image = $('<img>').addClass("icon");
       audio = $('<audio>');
       self = this;
-      cell = $('<td>').addClass("showInEditMode").append(this.makeIconBar(data)).append(audio).append(image).append(this.makeLabel(label)).css('background-color', color);
+      cell = $('<td>').append(this.makeIconBar(data)).append(audio).append(image).append(this.makeLabel(label)).css('background-color', color);
+      if ((_ref1 = this.options) != null ? _ref1.userIsBlind : void 0) {
+        cell.addClass("showInEditMode");
+      }
       cell.bind('dragenter', function(evt) {
         $(this).addClass('dragTarget');
         evt.stopPropagation();
@@ -194,9 +198,9 @@
           return reader.readAsDataURL(file);
         });
       });
-      _ref1 = ['background', 'icon', 'sound', 'photo', 'navigationSound'];
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        aspect = _ref1[_i];
+      _ref2 = ['background', 'icon', 'sound', 'photo', 'navigationSound'];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        aspect = _ref2[_i];
         if (aspect in data) {
           this.setContent(cell, aspect, data[aspect]);
         }

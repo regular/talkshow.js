@@ -99,6 +99,20 @@
       }
     };
 
+    Talkshow.prototype.popToRoot = function(cb) {
+      var _this = this;
+      if (this.navigationController.count() > 1) {
+        return this.navigationController.popToRoot(function() {
+          var myDataSource;
+          myDataSource = _this.navigationController.currentController();
+          $('#navBar').html(myDataSource.navTitle);
+          return cb(null);
+        });
+      } else {
+        return cb(null);
+      }
+    };
+
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
       var _this = this;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId + " of data source " + dataSource.navTitle);

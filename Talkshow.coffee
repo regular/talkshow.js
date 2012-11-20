@@ -65,6 +65,16 @@ class Talkshow
                 cb null
         else
             cb null
+
+
+    popToRoot: (cb) ->
+        if @navigationController.count()>1
+            @navigationController.popToRoot =>
+                myDataSource = @navigationController.currentController()
+                $('#navBar').html myDataSource.navTitle
+                cb null
+        else
+            cb null
     
     enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId} of data source #{dataSource.navTitle}"

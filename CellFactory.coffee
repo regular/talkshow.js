@@ -1,5 +1,5 @@
 class CellFactory 
-    constructor: (@delegate) ->
+    constructor: (@delegate, @options) ->
     
     makeLabel: (text) ->
         self = this
@@ -127,12 +127,14 @@ class CellFactory
         self = this
         
         cell = $('<td>')
-            .addClass("showInEditMode")
             .append(@makeIconBar data)
             .append(audio)
             .append(image)
             .append(@makeLabel label)
             .css('background-color', color)
+            
+        if @options?.userIsBlind
+            cell.addClass("showInEditMode")
                 
         cell.bind 'dragenter', (evt) ->
             $(this).addClass('dragTarget')
