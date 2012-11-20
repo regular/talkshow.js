@@ -28,8 +28,9 @@
       return exporter["export"](this.storage, cb);
     };
 
-    function Talkshow(cb) {
+    function Talkshow(accessibilityMode, cb) {
       var _this = this;
+      this.accessibilityMode = accessibilityMode;
       new StorageFactory().getBestStorage(function(err, result) {
         var grid;
         if (err != null) {
@@ -59,32 +60,16 @@
           }
           rootNodeId = (rootDoc != null ? rootDoc.value : void 0) || null;
           console.log("rootNodeId", rootNodeId);
-          return async.parallel([
-            function(cb) {
-              return new DataSource({
-                grid: grid,
-                level: 1,
-                nodeId: rootNodeId,
-                delegate: _this,
-                storage: _this.storage
-              }, cb);
-            }, function(cb) {
-              return new DataSource({
-                grid: grid,
-                level: 1,
-                nodeId: "yes_no",
-                storage: _this.storage
-              }, cb);
-            }
-          ], function(err, results) {
-            var myDataSource, splitDataSource;
+          return _this.accessibilityMode.initializeDataSource({
+            delegate: _this,
+            grid: grid,
+            storage: _this.storage,
+            nodeId: rootNodeId
+          }, function(err, newDataSource) {
             if (err != null) {
               return cb(err);
             }
-            myDataSource = results[0], _this.yesNoDataSource = results[1];
-            myDataSource.navTitle = ">";
-            splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-            return _this.navigationController.push(splitDataSource, function() {
+            return _this.navigationController.push(newDataSource, function() {
               var keyboardInput;
               keyboardInput = KeyboardInput.get(_this);
               return cb(null, _this);
@@ -115,23 +100,17 @@
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
       var _this = this;
       console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
-      return new DataSource({
+      return this.accessibilityMode.makeDataSource({
+        delegate: this,
         grid: this.grid,
-        level: level,
-        nodeId: nodeId,
+        storage: this.storage,
         parent: dataSource,
         position: position,
-        delegate: this,
-        storage: this.storage
-      }, function(err, myDataSource) {
-        var splitDataSource;
-        if (err != null) {
-          return cb(err);
-        }
-        myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label;
-        $('#navBar').html(myDataSource.navTitle);
-        splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
-        return _this.navigationController.push(splitDataSource, function() {
+        level: level,
+        nodeId: nodeId,
+        cellData: cellData
+      }, function(err, newDataSource) {
+        return _this.navigationController.push(newDataSource, function() {
           return cb(null);
         });
       });

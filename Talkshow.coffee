@@ -11,13 +11,14 @@ setupUIDGenerator = (storage, cb) ->
         cb err
 
 
+
 class Talkshow
-    
+        
     export: (exporterName, cb) ->
         exporter = new ZIPExporter
         exporter.export @storage, cb
     
-    constructor: (cb) ->
+    constructor: (@accessibilityMode, cb) ->
         #@storage = new LocalStorage
         new StorageFactory().getBestStorage (err, result) =>
             if err? then return cb err
@@ -40,29 +41,14 @@ class Talkshow
                 rootNodeId = rootDoc?.value or null
                 console.log "rootNodeId", rootNodeId
         
-                async.parallel [
-                    (cb) =>
-                        new DataSource 
-                            grid: grid
-                            level: 1, 
-                            nodeId: rootNodeId
-                            delegate: this
-                            storage: @storage
-                        , cb
-                    (cb) =>
-                         new DataSource 
-                            grid: grid,
-                            level: 1
-                            nodeId: "yes_no"
-                            storage: @storage
-                         , cb
-                ], (err, results) =>
+                @accessibilityMode.initializeDataSource
+                    delegate: this
+                    grid: grid
+                    storage: @storage
+                    nodeId: rootNodeId
+                , (err, newDataSource) =>
                     if err? then return cb err
-                    [myDataSource, @yesNoDataSource] = results
-                    myDataSource.navTitle = ">"
-                    splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
-
-                    @navigationController.push splitDataSource, =>
+                    @navigationController.push newDataSource, =>
                         keyboardInput = KeyboardInput.get this
                         cb null, this
 
@@ -80,20 +66,17 @@ class Talkshow
     
     enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
         console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
-        new DataSource 
+        @accessibilityMode.makeDataSource
+            delegate: this
             grid: @grid
+            storage: @storage
+            parent: dataSource
+            position: position
             level: level
             nodeId: nodeId
-            parent: dataSource,
-            position: position
-            delegate: this
-            storage: @storage
-        , (err, myDataSource) =>
-            if err? then return cb err
-            myDataSource.navTitle = dataSource.navTitle + " / " + cellData.label
-            $('#navBar').html myDataSource.navTitle
-            splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
-            @navigationController.push splitDataSource, ->
+            cellData: cellData
+        , (err, newDataSource) =>
+            @navigationController.push newDataSource, ->
                 cb null
     
 window.Talkshow = Talkshow

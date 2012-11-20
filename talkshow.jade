@@ -22,6 +22,7 @@ html
         script(src='ImagePlayer.js')
         script(src='Storage.js')
         script(src='ZIPExporter.js')
+        script(src='AccessibilityMode.js')
         script(src='Talkshow.js')
         
     body
@@ -299,7 +300,10 @@ html
                 location.href = link
             
         $(".dialog").hide()
-        talkshow = new Talkshow (err) ->
+        
+        accessibilityMode = new AccessibilityMode()
+        
+        talkshow = new Talkshow accessibilityMode, (err) ->
             if err
                 $("body").html "Failed to initialize Talkshow: #{err}"
             else
