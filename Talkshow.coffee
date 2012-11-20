@@ -48,6 +48,7 @@ class Talkshow
                     nodeId: rootNodeId
                 , (err, newDataSource) =>
                     if err? then return cb err
+                    newDataSource.navTitle = "Home"
                     @navigationController.push newDataSource, =>
                         keyboardInput = KeyboardInput.get this
                         cb null, this
@@ -58,14 +59,14 @@ class Talkshow
     pop: (cb) ->
         if @navigationController.count()>1
             @navigationController.pop =>
-                myDataSource = @navigationController.currentController().ds2
+                myDataSource = @navigationController.currentController()
                 $('#navBar').html myDataSource.navTitle
                 cb null
         else
             cb null
     
     enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
-        console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId}"
+        console.log "enteredCell #{position.x}/#{position.y} level: #{level} nodeId: #{nodeId} of data source #{dataSource.navTitle}"
         @accessibilityMode.makeDataSource
             delegate: this
             grid: @grid
@@ -76,6 +77,12 @@ class Talkshow
             nodeId: nodeId
             cellData: cellData
         , (err, newDataSource) =>
+            if err? then return cb err
+            newDataSource.navTitle = ">"
+            if dataSource?.navTitle? and cellData?.label?
+                newDataSource.navTitle = dataSource.navTitle + " / " + cellData.label
+            $('#navBar').html newDataSource.navTitle
+            
             @navigationController.push newDataSource, ->
                 cb null
     

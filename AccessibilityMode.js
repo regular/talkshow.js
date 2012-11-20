@@ -23,19 +23,26 @@
       });
     };
 
+    AccessibilityMode.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
+      var _ref;
+      dataSource = dataSource.splitDataSource;
+      return (_ref = this.delegate) != null ? _ref.enteredCell(dataSource, position, level, nodeId, cellData, cb) : void 0;
+    };
+
     AccessibilityMode.prototype.makeDataSource = function(options, cb) {
       var _this = this;
+      this.delegate = options.delegate;
+      options.delegate = this;
+      if (options.parent != null) {
+        options.parent = options.parent.ds2;
+      }
       return new DataSource(options, function(err, myDataSource) {
-        var splitDataSource, _ref, _ref1;
+        var splitDataSource;
         if (err != null) {
           return cb(err);
         }
-        myDataSource.navTitle = ">";
-        if ((((_ref = options.parent) != null ? _ref.navTitle : void 0) != null) && (((_ref1 = options.cellData) != null ? _ref1.label : void 0) != null)) {
-          myDataSource.navTitle = options.parent.navTitle + " / " + options.cellData.label;
-        }
-        $('#navBar').html(myDataSource.navTitle);
         splitDataSource = new SplitDataSource(_this.yesNoDataSource, myDataSource, 1);
+        myDataSource.splitDataSource = splitDataSource;
         return cb(null, splitDataSource);
       });
     };

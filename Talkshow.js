@@ -69,6 +69,7 @@
             if (err != null) {
               return cb(err);
             }
+            newDataSource.navTitle = "Home";
             return _this.navigationController.push(newDataSource, function() {
               var keyboardInput;
               keyboardInput = KeyboardInput.get(_this);
@@ -88,7 +89,7 @@
       if (this.navigationController.count() > 1) {
         return this.navigationController.pop(function() {
           var myDataSource;
-          myDataSource = _this.navigationController.currentController().ds2;
+          myDataSource = _this.navigationController.currentController();
           $('#navBar').html(myDataSource.navTitle);
           return cb(null);
         });
@@ -99,7 +100,7 @@
 
     Talkshow.prototype.enteredCell = function(dataSource, position, level, nodeId, cellData, cb) {
       var _this = this;
-      console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId);
+      console.log("enteredCell " + position.x + "/" + position.y + " level: " + level + " nodeId: " + nodeId + " of data source " + dataSource.navTitle);
       return this.accessibilityMode.makeDataSource({
         delegate: this,
         grid: this.grid,
@@ -110,6 +111,14 @@
         nodeId: nodeId,
         cellData: cellData
       }, function(err, newDataSource) {
+        if (err != null) {
+          return cb(err);
+        }
+        newDataSource.navTitle = ">";
+        if (((dataSource != null ? dataSource.navTitle : void 0) != null) && ((cellData != null ? cellData.label : void 0) != null)) {
+          newDataSource.navTitle = dataSource.navTitle + " / " + cellData.label;
+        }
+        $('#navBar').html(newDataSource.navTitle);
         return _this.navigationController.push(newDataSource, function() {
           return cb(null);
         });

@@ -11,14 +11,24 @@ class AccessibilityMode
             options.level = 1
             @makeDataSource options, cb
     
+    enteredCell: (dataSource, position, level, nodeId, cellData, cb) ->
+        dataSource = dataSource.splitDataSource
+        @delegate?.enteredCell dataSource, position, level, nodeId, cellData, cb
+    
     makeDataSource: (options, cb) ->
+        # we proxy enteredCell calls to correct the sender
+        @delegate = options.delegate
+        options.delegate = this
+        
+        # parent is a split data source. We want the 
+        # left datasource of the split data source
+        if options.parent?
+            options.parent = options.parent.ds2
+        
         new DataSource options, (err, myDataSource) =>
             if err? then return cb err
-            myDataSource.navTitle = ">"
-            if options.parent?.navTitle? and options.cellData?.label?
-                myDataSource.navTitle = options.parent.navTitle + " / " + options.cellData.label
-            $('#navBar').html myDataSource.navTitle
             splitDataSource = new SplitDataSource @yesNoDataSource, myDataSource, 1
+            myDataSource.splitDataSource = splitDataSource
             cb null, splitDataSource
 
 window.AccessibilityMode = AccessibilityMode
