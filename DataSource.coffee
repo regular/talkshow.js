@@ -138,10 +138,10 @@ class DataSource
             if childNodeId is null
                 if data.sound
                     audioPlayer = new AudioPlayer(data.sound)
-                    return cb null
+                    return cb null, {content: 'sound'}
                 else if data.photo
                     imagePlayer = new ImagePlayer(data.photo)
-                    return cb null
+                    return cb null, {content: 'photo'}
         
             if @delegate?
                 @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, data, cb

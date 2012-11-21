@@ -27,6 +27,7 @@ class _BlindKeyboardInput
         @setFocusPosition 0, 0
             
     pushModalKeyHandler: (kh) ->
+        console.log "pushModalKeyHandler"
         @modalKeyHandlers.push(kh)
         console.log "stopping timer **"
         @stopTimer()
@@ -40,10 +41,14 @@ class _BlindKeyboardInput
         return @focusPosition().left is 0
     
     playNavigationSound: ->
+        @stopNavigationSound()
         if $(".keyboardFocus audio").attr('src')?
             $(".keyboardFocus audio").each -> @play()
             return true
         return false
+        
+    stopNavigationSound: ->
+        $("#grid audio").each -> @pause()
     
     handleKey: (e) =>
         # console.log(e.keyCode);
@@ -108,6 +113,7 @@ class _BlindKeyboardInput
         @stopTimer()
         timerCallback = =>
             @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
+            console.log "set timeoutID to  #{@timeoutID}"
             startField = $(".keyboardFocus")[0]
             played = false
             while not played 
@@ -116,22 +122,30 @@ class _BlindKeyboardInput
                 if startField is $(".keyboardFocus")[0]
                     break
         @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
+        console.log "set timeoutID to  #{@timeoutID}"
         
     stopTimer: ->
         if @timeoutID?
             console.log "STOP timer"
             window.clearTimeout @timeoutID
             @timeoutID = null
+        else
+            console.log "not stopping, timeoutID is #{@timeoutID}"
 
     enter: ->
         @stopTimer()
+        @stopNavigationSound()
         focusPos = @focusPosition()
         if focusPos?
-            @delegate.enterCell focusPos.left, focusPos.top, (err) =>
+            @delegate.enterCell focusPos.left, focusPos.top, (err, result) =>
                 console.log "set focus pos to 1/0"
-                @setFocusPosition 1 ,0
-                @playNavigationSound()
-                @startTimer()
+                if result? and ("content" of result)
+                    # some content is displayed
+                else
+                    # we entered a new level
+                    @setFocusPosition 1 ,0
+                    @playNavigationSound()
+                    @startTimer()
 
     pop: (cb) ->
         @stopTimer()

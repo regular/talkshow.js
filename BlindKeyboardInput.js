@@ -44,6 +44,7 @@
     }
 
     _BlindKeyboardInput.prototype.pushModalKeyHandler = function(kh) {
+      console.log("pushModalKeyHandler");
       this.modalKeyHandlers.push(kh);
       console.log("stopping timer **");
       return this.stopTimer();
@@ -61,6 +62,7 @@
     };
 
     _BlindKeyboardInput.prototype.playNavigationSound = function() {
+      this.stopNavigationSound();
       if ($(".keyboardFocus audio").attr('src') != null) {
         $(".keyboardFocus audio").each(function() {
           return this.play();
@@ -68,6 +70,12 @@
         return true;
       }
       return false;
+    };
+
+    _BlindKeyboardInput.prototype.stopNavigationSound = function() {
+      return $("#grid audio").each(function() {
+        return this.pause();
+      });
     };
 
     _BlindKeyboardInput.prototype.handleKey = function(e) {
@@ -134,6 +142,7 @@
       timerCallback = function() {
         var played, startField, _results;
         _this.timeoutID = window.setTimeout(timerCallback, _this.getScannerDelay());
+        console.log("set timeoutID to  " + _this.timeoutID);
         startField = $(".keyboardFocus")[0];
         played = false;
         _results = [];
@@ -148,7 +157,8 @@
         }
         return _results;
       };
-      return this.timeoutID = window.setTimeout(timerCallback, this.getScannerDelay());
+      this.timeoutID = window.setTimeout(timerCallback, this.getScannerDelay());
+      return console.log("set timeoutID to  " + this.timeoutID);
     };
 
     _BlindKeyboardInput.prototype.stopTimer = function() {
@@ -156,6 +166,8 @@
         console.log("STOP timer");
         window.clearTimeout(this.timeoutID);
         return this.timeoutID = null;
+      } else {
+        return console.log("not stopping, timeoutID is " + this.timeoutID);
       }
     };
 
@@ -163,13 +175,18 @@
       var focusPos,
         _this = this;
       this.stopTimer();
+      this.stopNavigationSound();
       focusPos = this.focusPosition();
       if (focusPos != null) {
-        return this.delegate.enterCell(focusPos.left, focusPos.top, function(err) {
+        return this.delegate.enterCell(focusPos.left, focusPos.top, function(err, result) {
           console.log("set focus pos to 1/0");
-          _this.setFocusPosition(1, 0);
-          _this.playNavigationSound();
-          return _this.startTimer();
+          if ((result != null) && ("content" in result)) {
+
+          } else {
+            _this.setFocusPosition(1, 0);
+            _this.playNavigationSound();
+            return _this.startTimer();
+          }
         });
       }
     };

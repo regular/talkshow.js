@@ -16,7 +16,7 @@ class KeyboardInput
         return @focusPosition().left is 0
     
     playNavigationSound: ->
-        $(".keyboardFocus audio").each ()-> @play()
+        $(".keyboardFocus audio").each -> @play()
     
     keyHandler: (e) =>
         # console.log(e.keyCode);
@@ -26,7 +26,7 @@ class KeyboardInput
                 if @isInMenu()
                     @setFocusPosition 1 ,0
                     @playNavigationSound()
-                    timerCallback = ()=>
+                    timerCallback = =>
                         @timeoutID = window.setTimeout timerCallback, 1000
                         @splitStep 1
                         @playNavigationSound()
@@ -65,13 +65,13 @@ class KeyboardInput
 
         return false
 
-    enter: () ->
+    enter:->
         focusPos = @focusPosition()
         if focusPos?
             @delegate.enterCell focusPos.left, focusPos.top, =>
 
-    focusPosition: () ->
-        if $(".keyboardFocus").length == 1
+    focusPosition: ->
+        if $(".keyboardFocus").length is 1
             cell = $(".keyboardFocus")
             row = cell.closest("tr")
             x = cell.index()
