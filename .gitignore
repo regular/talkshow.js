@@ -1,2 +1,8 @@
 .DS_Store
 eSpeak/
+node_modules
+assets
+content.json
+content.zip
+experimental
+build/

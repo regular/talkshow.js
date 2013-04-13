@@ -1,0 +1,44 @@
+{
+  "name": "talkshow.js",
+  "repo": "regular/talkshow.js",
+  "description": "Communications and media consumption application for people with limited muscular abilitie",
+  "version": "0.0.1",
+  "keywords": [
+    "cerebromedullospinal disconnection",
+    "locked-in syndrome",
+    "adaptive technology",
+    "assistive",
+    "talker",
+    "application"
+  ],
+  "dependencies": {},
+  "development": {},
+  "license": "BSD",
+  "main": "build/main.js",
+  "scripts": [
+    "build/main.js",
+    "build/KeyboardInput.js",
+    "build/DefaultKeyboardHandler.js",
+    "build/BlindKeyboardHandler.js",
+    "build/DataSource.js",
+    "build/CellFactory.js",
+    "build/NavigationController.js",
+    "build/AccessibilityModeNavCol.js",
+    "build/AccessibilityModeShabanaj.js",
+    "build/AccessibilityModePlain.js",
+    "build/Talkshow.js",
+    "build/Grid.js",
+    "build/Settings.js",
+    "build/ZIPExporter.js",
+    "build/Storage.js",
+    "build/mime.js",
+    "build/SplitDataSource.js",
+    "build/ModalDialog.js",
+    "build/ImagePlayer.js",
+    "build/AudioPlayer.js",
+    "build/Scanner.js"
+  ],
+  "styles": [
+    "build/talkshow.css"
+  ]
+}

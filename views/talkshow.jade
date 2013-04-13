@@ -1,0 +1,104 @@
+!!!
+html
+    head
+        meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+        script(src='jquery.min.js')
+        script(src='jquery.couch.js')
+        script(src='async.min.js')
+        script(src='underscore.js')
+        script(src='jszip.js')
+        script(src='mime.js')
+        
+        script(src='build/build.js')
+        link(rel="stylesheet", type="text/css", href="build/build.css")
+        
+    body
+        #header
+            div
+                h2 Talkshow.js
+            div
+                input#editSwitch(type="checkbox")
+                span edit mode
+            div
+                span#storageIdentifier
+            div
+                a#export Inhalte als Zip-Datei exportieren
+                
+        #settings.showInEditMode
+            div
+                ul#colors(style="display:none")
+            div
+                span Scanner Geschwindigkeit:
+                input#scannerDelay.preference(value="2000")
+                span Millisekunden pro Feld
+            
+        #navBar Home
+        #grid
+        #horiz.pointer ⬇
+        #vert.pointer ➨
+        #settings
+            ul#colors.showInEditMode
+        
+        #dialogs
+            .audioPlayer
+                .dialog
+                    .title Audio Player
+                    audio(controls="controls")
+                    .choice(type="pause") Pause (L)
+                    .choice(type="back") Zurück (R)
+
+            .imagePlayer
+                .dialog
+                    .title Foto
+                    img
+                    div
+                        .choice(type="back") Zurück (R)
+
+            .soundDropped
+                .dialog(lang="de")
+                    .title Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?
+                    .choice(type="navigationSound") Navigationsansage
+                    .choice(type="sound") Musik/Hörbuch
+                    .choice Abbrechen
+
+                // .dialog(lang="en")
+                //     .title Is this sound file a navigation sound for visually impaired users or music/audio book?
+                //     .choice(type="navigationSound") Navigation Sound
+                //     .choice(type="sound") Music or Audio book
+                //     .choice Cancel
+
+            .imageDropped
+                .dialog
+                    .title Ist diese Bilddatei als Symbol, als Feldhintergrund  oder als Inhalt (Foto) gedacht?
+                    .choice(type="icon") Symbol
+                    .choice(type="background") Feldhintergrund
+                    .choice(type="photo") Foto
+                    .choice Abbrechen
+                    
+            .delete
+                .navigationSound
+                    .dialog
+                        .title Soll diese Navigationsansage gelöscht werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+                .sound
+                    .dialog
+                        .title Soll dieser Audioinhalt gelöscht werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+                .icon
+                    .dialog
+                        .title Soll dieses Symbol entfernt werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+                .background
+                    .dialog
+                        .title Soll dieser Feldhintergrund entfernt werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+                .photo
+                    .dialog
+                        .title Soll dieses Foto gelöscht werden?
+                        .choice(type="delete") Löschen
+                        .choice Abbrechen
+

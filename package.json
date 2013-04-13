@@ -1,0 +1,30 @@
+{
+  "name": "talkshow",
+  "version": "0.0.1",
+  "description": "Communications and media consumption application for people with limited muscular abilities",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/regular/talkshow.js.git"
+  },
+  "keywords": [
+    "cerebromedullospinal disconnection",
+    "locked-in syndrome",
+    "adaptive technology",
+    "assistive",
+    "talker",
+    "html5",
+    "application"
+  ],
+  "author": "Jan Bölsche",
+  "license": "BSD",
+  "devDependencies": {
+    "component": "~0.13.2",
+    "coffee-script": "~1.6.2",
+    "jade": "~0.28.2",
+    "stylus": "~0.32.1"
+  }
+}
