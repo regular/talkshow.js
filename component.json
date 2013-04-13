@@ -43,6 +43,7 @@
     "build/lib/Scanner.js"
   ],
   "styles": [
-    "build/talkshow.css"
+    "build/talkshow.css",
+    "build/breadcrumbs.css"
   ]
 }

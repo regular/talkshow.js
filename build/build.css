@@ -308,7 +308,7 @@ body {
 }
 #header {
   background-color: #555;
-  margin: 0px 20px;
+  margin: 0px 0px;
   color: #aaa;
 }
 h2 {
@@ -416,4 +416,23 @@ td.dragTarget {
   height: 32px;
   border: 1px solid #aaa;
   margin-right: 4px;
+}
+
+ui.breadcrumbs {
+  background-color: #808080;
+  display: inline-block;
+}
+ui.breadcrumbs li:hover {
+  background-color: #00f;
+}
+ui.breadcrumbs li {
+  border-left: 1px solid #fff;
+  display: inline-block;
+}
+ui.breadcrumbs li a {
+  color: #d3d3d3;
+  padding: 4px 10px;
+}
+ui.breadcrumbs li a:before {
+  content: "> ";
 }

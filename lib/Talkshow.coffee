@@ -33,6 +33,16 @@ class Talkshow
             grid = new Grid columns, rows
             @navigationController = new NavigationController grid
         
+            _this = this
+            $(".breadcrumbs a").live 'click', (e) ->
+                i = $(this).attr 'index'
+                console.log "breadcrumb index is #{i}"
+                l = $(".breadcrumbs li").length
+                popCount = l - i - 1
+                if (popCount > 0)
+                    console.log "popping #{popCount} levels"
+                    _this.pop(popCount)
+
             async.parallel [
                 (cb) =>
                     setupUIDGenerator @storage, (err) =>
@@ -59,26 +69,30 @@ class Talkshow
                         ## TODO: refactor this
                         KeyHandlerClass = @accessibilityMode.getKeyHandlerClass()
                         keybordInput.setKeyHandler new KeyHandlerClass(this)
+                        @updateBreadcrumbs()
                         cb null, this
 
     enterCell: (x,y, cb) ->
         @navigationController.currentController().enterCell x,y, cb
-    
-    pop: (cb) ->
+   
+    updateBreadcrumbs: ->
+        $('#navBar').html @navigationController.getBreadCrumbs()
+ 
+    pop: (count, cb) ->
+        if count instanceof Function
+            cb = count
+            count = 1
         if @navigationController.count()>1
-            @navigationController.pop =>
-                myDataSource = @navigationController.currentController()
-                $('#navBar').html myDataSource.navTitle
+            @navigationController.pop count, =>
+                @updateBreadcrumbs()
                 cb null
         else
             cb null
 
-
     popToRoot: (cb) ->
         if @navigationController.count()>1
             @navigationController.popToRoot =>
-                myDataSource = @navigationController.currentController()
-                $('#navBar').html myDataSource.navTitle
+                @updateBreadcrumbs()                
                 cb null
         else
             cb null
@@ -96,12 +110,10 @@ class Talkshow
             cellData: cellData
         , (err, newDataSource) =>
             if err? then return cb err
-            newDataSource.navTitle = ">"
-            if dataSource?.navTitle? and cellData?.label?
-                newDataSource.navTitle = dataSource.navTitle + " / " + cellData.label
-            $('#navBar').html newDataSource.navTitle
+            newDataSource.navTitle = cellData?.label or ">"
             
-            @navigationController.push newDataSource, ->
+            @navigationController.push newDataSource, =>
+                @updateBreadcrumbs()
                 cb null
     
 module.exports = Talkshow
