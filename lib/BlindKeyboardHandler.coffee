@@ -9,7 +9,7 @@ class BlindKeyboardHandler
         # focus to be visible initially
         @setFocusPosition 0, 0
             
-    enderModal:  ->
+    enterModal:  ->
         @stopTimer()
         
     leaveModal: ->
@@ -19,10 +19,16 @@ class BlindKeyboardHandler
     isInMenu: (e) ->
         return @focusPosition().left is 0
     
+    currentAudioDuration: ->
+        if $(".keyboardFocus audio").attr('src')?
+            return $(".keyboardFocus audio")[0].duration
+        return null
+
     playNavigationSound: ->
         @stopNavigationSound()
         if $(".keyboardFocus audio").attr('src')?
-            $(".keyboardFocus audio").each -> @play()
+            $(".keyboardFocus audio").each -> 
+                @play()
             return true
         return false
         
@@ -85,13 +91,16 @@ class BlindKeyboardHandler
 
         return false
 
-    getScannerDelay: () ->
-        parseInt( $("#scannerDelay").val() or 1000)
+    getScannerDelay: ->
+        minms = parseInt( $("#scannerDelay").val() or 1000)
+        audioms = @currentAudioDuration()
+        audioms = if audioms is null then 0 else audioms * 1000
+        console.log "getScannerDelay", audioms
+        return if minms > audioms then minms else audioms
 
     startTimer: ->
         @stopTimer()
         timerCallback = =>
-            @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
             console.log "set timeoutID to  #{@timeoutID}"
             startField = $(".keyboardFocus")[0]
             played = false
@@ -100,6 +109,8 @@ class BlindKeyboardHandler
                 played = @playNavigationSound()
                 if startField is $(".keyboardFocus")[0]
                     break
+            @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
+
         @timeoutID = window.setTimeout timerCallback, @getScannerDelay()
         console.log "set timeoutID to  #{@timeoutID}"
         

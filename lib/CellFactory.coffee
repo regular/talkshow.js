@@ -1,4 +1,5 @@
 keyboardInput = require './KeyboardInput'
+ModalDialog = require './ModalDialog'
 
 class CellFactory 
     constructor: (@delegate, @options) ->

@@ -15,7 +15,7 @@ class DefaultKeyboardHandler
     playNavigationSound: ->
         $(".keyboardFocus audio").each -> @play()
     
-    enterModal: ->
+    enterModal:  ->
     leaveModal: ->
 
     handleKey: (e) =>
@@ -35,8 +35,6 @@ class DefaultKeyboardHandler
                 else
                     @setFocusPosition 0,0
                     window.clearTimeout @timeoutID
-                    
-
             else 
         
                 switch e.keyCode
