@@ -6,8 +6,11 @@ COMPONENT = $(BIN)/component
 
 JADE_FLAGS = --pretty
 
-COFFEE_FILES := $(wildcard lib/*.coffee)
-JS_FILES := $(patsubst lib/%.coffee, build/%.js, $(COFFEE_FILES))
+LIB_FILES := $(wildcard lib/*.coffee)
+TEST_FILES := $(wildcard test/*.coffee)
+LIB_JS_FILES := $(patsubst lib/%.coffee, build/lib/%.js, $(LIB_FILES))
+TEST_JS_FILES := $(patsubst test/%.coffee, build/test/%.js, $(TEST_FILES))
+JS_FILES := $(LIB_JS_FILES) $(TEST_JS_FILES)
 
 STYLUS_FILES := $(wildcard styles/*.styl)
 CSS_FILES := $(patsubst styles/%.styl, build/%.css, $(STYLUS_FILES))
@@ -17,8 +20,11 @@ all: build talkshow.html
 build/main.js: main.coffee
 	$(COFFEEC) -c --output build $< 
 
-build/%.js: lib/%.coffee
-	$(COFFEEC) -c --output build $<
+build/lib/%.js: lib/%.coffee
+	$(COFFEEC) -c --output build/lib $<
+
+build/test/%.js: test/%.coffee
+	$(COFFEEC) -c --output build/test $<
 
 build/%.css: styles/%.styl
 	$(STYLUSC) --out build $<

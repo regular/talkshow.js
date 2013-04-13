@@ -1,7 +1,7 @@
-Talkshow = require './Talkshow'
-AccessibilityModeNavCol = require './AccessibilityModeNavCol'
-AccessibilityModeShabanaj = require './AccessibilityModeShabanaj'
-AccessibilityModePlain = require './AccessibilityModePlain'
+Talkshow = require './lib/Talkshow'
+AccessibilityModeNavCol = require './lib/AccessibilityModeNavCol'
+AccessibilityModeShabanaj = require './lib/AccessibilityModeShabanaj'
+AccessibilityModePlain = require './lib/AccessibilityModePlain'
 
 $ ->
 
@@ -34,6 +34,11 @@ $ ->
     $(".dialog").hide()
     
     query = getQuery()
+    if query.test?
+        console.log "running tests!"
+        require './test/zip-test'
+        return
+
     accessibilityMode = new AccessibilityModeNavCol()
     
     if query.mode is "shabanaj"
