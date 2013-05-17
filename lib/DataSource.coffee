@@ -124,7 +124,7 @@ class DataSource
         else
             ensureLabel obj, @level, @nodeId
             cb null, obj
-        
+    
     enterCell: (x, y, cb) ->
         console.log "entering cell #{x}/#{y}"
         childNodeId = null
@@ -139,13 +139,12 @@ class DataSource
         @cellData x,y, (err, data) =>
             if err? then return cb err
             
-            if childNodeId is null
-                if data.sound
-                    audioPlayer = new AudioPlayer(data.sound)
-                    return cb null, {content: 'sound'}
-                else if data.photo
-                    imagePlayer = new ImagePlayer(data.photo)
-                    return cb null, {content: 'photo'}
+            if data.sound
+                audioPlayer = new AudioPlayer(data.sound)
+                return cb null, {content: 'sound'}
+            else if data.photo
+                imagePlayer = new ImagePlayer(data.photo)
+                return cb null, {content: 'photo'}
         
             if @delegate?
                 @delegate.enteredCell this, {x:x,y:y}, @level + 1, childNodeId, data, cb
