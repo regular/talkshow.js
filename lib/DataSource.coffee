@@ -157,7 +157,7 @@ class DataSource
             
             color = @colorForCell x,y
             
-            cell = @factory.makeCell data, color
+            cell = @factory.makeCell data, color, {x, y}
             
             if "id" of data
                 cell.attr "id", data.id

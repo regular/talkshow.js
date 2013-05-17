@@ -67,13 +67,14 @@ class CellFactory
             when 'navigationSound'
                 audio.attr 'src', dataUri or ''
                 
-    handleDrop: (cell, dataUri, mimeType) ->
+    handleDrop: (cell, dataUri, mimeType, coordinates) ->
         majorType = mimeType.split("/")[0]
         console.log "handleDrop", majorType
-        
+        dialogClass = if coordinates.x isnt 0 then "otherRows" else "firstRow"
+
         switch majorType
             when 'audio'
-                dialog = new ModalDialog ".soundDropped .dialog", (aspect) =>
+                dialog = new ModalDialog ".soundDropped .dialog.#{dialogClass}", (aspect) =>
                     if aspect
                         @setContent cell, aspect, dataUri
                         @delegate?.contentChanged cell, aspect, dataUri, (err) =>
@@ -84,7 +85,7 @@ class CellFactory
                                 window.alert "contentChanged failed: #{err}"
             
             when 'image'
-                dialog = new ModalDialog '.imageDropped .dialog', (aspect) =>
+                dialog = new ModalDialog ".imageDropped .dialog.#{dialogClass}", (aspect) =>
                     if aspect
                         @setContent cell, aspect, dataUri
                         @delegate?.contentChanged cell, aspect, dataUri, (err) =>
@@ -123,7 +124,7 @@ class CellFactory
         iconBar.append makeIconBarItem 'navigationSound', 'icons/08-chat@2x.png'
         iconBar.append makeIconBarItem 'sound', 'icons/65-note@2x.png'
         
-    makeCell: (data, color) ->
+    makeCell: (data, color, coordinates) ->
         label = data.label ? 'n/a'
         image = $('<img>').addClass "icon"
         audio = $ '<audio>'
@@ -166,9 +167,9 @@ class CellFactory
                 console.log "type: #{file.type}"
                 console.log "path: #{file.mozFullPath}"
                 reader = new FileReader()
-                reader.onloadend = () ->
+                reader.onloadend = ->
                     dataUri = reader.result
-                    self.handleDrop cell, dataUri, file.type
+                    self.handleDrop cell, dataUri, file.type, coordinates
                 reader.readAsDataURL file
 
         for aspect in [

@@ -56,24 +56,31 @@
         </div>
       </div>
       <div class="soundDropped">
-        <div lang="de" class="dialog">
+        <div class="dialog otherRows">
           <div class="title">Ist diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer gedacht, oder als Inhalt (Musik/Hörbuch)?</div>
           <div type="navigationSound" class="choice">Navigationsansage</div>
           <div type="sound" class="choice">Musik/Hörbuch</div>
           <div class="choice">Abbrechen</div>
         </div>
-        <!-- .dialog(lang="en")-->
-        <!--     .title Is this sound file a navigation sound for visually impaired users or music/audio book?-->
-        <!--     .choice(type="navigationSound") Navigation Sound-->
-        <!--     .choice(type="sound") Music or Audio book-->
-        <!--     .choice Cancel-->
+        <div class="dialog firstRow">
+          <div class="title">Soll diese Sounddatei als Navigationsansage für Sehbehinderte Benutzer hinterlegt werden?</div>
+          <div type="navigationSound" class="choice">Ja</div>
+          <div class="choice">Abbrechen</div>
+        </div>
       </div>
       <div class="imageDropped">
-        <div class="dialog">
+        <div class="dialog otherRows">
           <div class="title">Ist diese Bilddatei als Symbol, als Feldhintergrund  oder als Inhalt (Foto) gedacht?</div>
           <div type="icon" class="choice">Symbol</div>
           <div type="background" class="choice">Feldhintergrund</div>
           <div type="photo" class="choice">Foto</div>
+          <div class="choice">Abbrechen</div>
+        </div>
+        <div class="dialog firstRow">
+          <div class="title">Ist diese Bilddatei als Symbol oder als Feldhintergrund gedacht?</div>
+          <div id="span">In der Navigationspalte können keine Fotos hinterlegt werden</div>
+          <div type="icon" class="choice">Symbol</div>
+          <div type="background" class="choice">Feldhintergrund</div>
           <div class="choice">Abbrechen</div>
         </div>
       </div>
