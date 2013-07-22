@@ -13,11 +13,7 @@ class DefaultKeyboardHandler
         return @focusPosition().left is 0
     
     playNavigationSound: ->
-        $(".keyboardFocus audio").each ->
-            @play()
-            setTimeout =>
-                @play()
-            , 100
+        $(".keyboardFocus audio").each -> @play()
     
     enterModal:  ->
     leaveModal: ->

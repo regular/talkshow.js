@@ -29,9 +29,6 @@ class BlindKeyboardHandler
         if $(".keyboardFocus audio").attr('src')?
             $(".keyboardFocus audio").each -> 
                 @play()
-                setTimeout =>
-                    @play()
-                , 100
             return true
         return false
         
