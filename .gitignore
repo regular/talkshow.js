@@ -7,4 +7,7 @@ content.zip
 experimental
 build/test
 build/lib
+build/breadcrumbs.css
+build/main.js
+build/talkshow.css
 components/
